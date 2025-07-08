@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Terma Perkhidmatan - Khairat Kematian{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <h1 class="text-center mb-4">Terma Perkhidmatan</h1>
+    <div class="bg-dark p-4 rounded shadow text-light">
+        <p>
+            Dengan menggunakan laman web ini, anda bersetuju untuk mematuhi terma-terma yang telah ditetapkan oleh pihak pengurusan Khairat Kematian Felda Air Tawar 1.
+        </p>
+        <ul>
+            <li>Laman ini bertujuan untuk penyampaian maklumat berkaitan kematian dan organisasi khairat semata-mata.</li>
+            <li>Maklumat yang dipaparkan adalah berdasarkan rekod rasmi dan telah mendapat kebenaran dari pihak berautoriti.</li>
+            <li>Pengguna tidak dibenarkan menyalin atau menyebarkan maklumat tanpa kebenaran bertulis dari pihak pengurusan.</li>
+            <li>Sebarang salah guna, penyalahgunaan data, atau penyuntingan maklumat secara tidak sah adalah dilarang sama sekali.</li>
+            <li>Pihak pengurusan berhak mengubah terma ini pada bila-bila masa tanpa notis awal.</li>
+        </ul>
+        <p>
+            Jika anda mempunyai sebarang pertanyaan, sila hubungi pihak pengurusan Khairat Kematian melalui halaman <a href="{{ url_for('organisasi') }}" class="text-info text-decoration-none">Organisasi</a>.
+        </p>
+    </div>
+</div>
+
+<hr class="my-5 border-light">
+
+{% endblock %}
