@@ -1,0 +1,8 @@
+# Abaikan fail/folder sensitif dan tidak perlu
+database.db
+instance/
+__pycache__/
+*.pyc
+*.pem
+.env
+

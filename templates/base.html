@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Burial Map{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        h1, h2 {
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .navbar {
+            background-color: #1c1c1c;
+            padding-top: 0.1rem;
+            padding-bottom: 0.1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+        }
+
+        .navbar .navbar-brand {
+            color: white !important;
+            font-size: 1.2rem;
+        }
+
+        .navbar .nav-link, .dropdown-toggle {
+            color: white !important;
+            font-size: 0.95rem;
+        }
+
+        .navbar .nav-link:hover, .dropdown-toggle:hover {
+            color: #f1f1f1 !important;
+        }
+
+        .dropdown-menu {
+            background-color: #2a2a2a;
+        }
+
+        .dropdown-item {
+            color: #fff;
+        }
+
+        .dropdown-item:hover {
+            background-color: #00cc99;
+            color: #121212;
+        }
+
+        .main-content {
+            padding-top: 80px;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        form {
+            background-color: #2a2a2a;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 255, 204, 0.3);
+            max-width: 500px;
+            margin: 50px auto;
+            animation: fadeIn 1s ease-out;
+        }
+
+        input, button {
+            font-size: 1.1rem;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 12px;
+        }
+
+        button[type="submit"] {
+            background-color: #00ffcc;
+            color: #121212;
+            font-size: 1.1rem;
+            padding: 12px 30px;
+            width: 100%;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #00cc99;
+            box-shadow: 0px 0px 15px rgba(0, 255, 204, 0.8);
+        }
+
+        .container {
+            margin-top: 30px;
+        }
+
+        .container-login {
+            margin-top: 30px;
+        }
+
+        footer {
+            text-align: center;
+            background-color: #222;
+            padding: 20px 0;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            color: #fff;
+        }
+
+        footer a {
+            color: #ffffff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            color: #00ffcc;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .alert {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            form {
+                padding: 20px;
+                margin: 30px 15px;
+            }
+
+            .navbar .navbar-brand, .navbar .nav-link {
+                font-size: 1rem;
+            }
+
+            input, button {
+                font-size: 1rem;
+                padding: 10px;
+            }
+
+            footer p {
+                font-size: 0.9rem;
+            }
+
+            .main-content {
+                padding-top: 60px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar .navbar-brand {
+                font-size: 1rem;
+            }
+        }
+
+        .navbar-toggler {
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2">
+            <img src="{{ url_for('static', filename='images/kam.png') }}" alt="Logo KAM" height="69"/>
+            <img src="{{ url_for('static', filename='images/apm.png') }}" alt="Logo APM" height="69"/>
+            <img src="{{ url_for('static', filename='images/FAT.png') }}" alt="Logo FAT" height="69"/>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar Links -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto">
+
+                <li class="nav-item">
+                    <li><a class="nav-link" href="{{ url_for('home') }}"><i class="fas fa-home me-2"></i> Utama</a></li>
+                </li>
+
+                <!-- Dropdown Navigasi -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="naviDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bars"></i> Navigasi
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="naviDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('organisasi') }}"><i class="fas fa-users me-2"></i> Organisasi Khairat Kematian</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('adab') }}"><i class="fas fa-praying-hands me-2"></i> Adab Menziarahi Kubur</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('organisasi') }}#hubungi"><i class="fas fa-phone-alt me-2"></i> Hubungi Kami</a></li>
+                    </ul>
+                </li>
+
+                <!-- Dropdown Pautan Pantas -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="pautanDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-link"></i> Pautan Pantas
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="pautanDropdown">
+                        <li>
+                            <a class="dropdown-item" href="https://www.tiktok.com/@amin334484?_t=ZS-8xIiWHJIF17&_r=1" target="_blank">
+                                YAS Datuk KPJ (PA) (TikTok)
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="https://m.facebook.com/first.axe.team.f.a.t.1/" target="_blank">
+                                First Axe Team (Facebook)
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="https://www.facebook.com/Apmkotatinggijohor" target="_blank">
+                                APM Daerah Kota Tinggi (Facebook)
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="https://www.facebook.com/share/1K3je8vtWb/?mibextid=qi2Omg" target="_blank">
+                                Badan Khairat Felda Air Tawar 1 (Facebook)
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="https://www.tiktok.com/@badan.khairat.air?_t=ZS-8xCMEKClP1h&_r=1" target="_blank">
+                                Badan Khairat Felda Air Tawar 1 (TikTok)
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                {% if session.get('user_id') %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt"></i> Log Keluar
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">
+                            <i class="fas fa-sign-in-alt"></i> Daftar Kematian
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main-content">
+    {% block content %}{% endblock %}
+</div>
+
+<!-- Footer -->
+    <footer>
+        <p><b>Copyright &copy; 2025 First Axe Team<br>Civil Defence Auxiliary</b></p>
+        
+        <!-- Pautan Polisi -->
+        <p>
+            <a href="{{ url_for('privasi') }}">Dasar Privasi</a> | <a href="{{ url_for('terma') }}">Terma Perkhidmatan</a>
+        </p>
+
+        <!-- Alamat Emel -->
+        <p style="text-align: center;">
+            Sebarang aduan berkenaan website boleh emel ke: <br>
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=firstaxeteam@gmail.com" target="_blank">
+                <b>firstaxeteam@gmail.com</b>
+            </a>
+        </p>
+
+        <!-- Logo Sokongan -->
+        <p>
+            <img src="{{ url_for('static', filename='images/apm.png') }}" alt="Logo APM" height="64"/> 
+            <img src="{{ url_for('static', filename='images/madani.png') }}" alt="Logo Madani" height="64"/> 
+            <img src="{{ url_for('static', filename='images/kam.png') }}" alt="Logo KAM" height="64"/> 
+            <img src="{{ url_for('static', filename='images/FAT.png') }}" alt="Logo FAT" height="64"/>
+        </p>
+    </footer>
+
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
