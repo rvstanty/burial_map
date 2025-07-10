@@ -61,6 +61,7 @@ def register():
         db.session.commit()
 
         session['user_id'] = new_user.id
+        session['user_email'] = new_user.email
         flash('Pendaftaran berjaya! Anda telah log masuk.', 'success')
         return redirect(url_for('login'))
 
@@ -75,6 +76,7 @@ def login():
 
         if user and user.check_password(password):
             session['user_id'] = user.id
+            session['user_email'] = user.email
             flash('Log masuk berjaya. Anda kini boleh lihat maklumat terperinci.', 'success')
             return redirect(url_for('home'))
         else:
@@ -136,6 +138,7 @@ def daftar_kematian():
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
+    session.pop('user_email', None)
     flash('Anda telah log keluar.', 'success')
     return redirect(url_for('home'))
 
