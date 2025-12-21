@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Log Masuk - Peta Perkuburan{% endblock %}
+
+{% block content %}
+<hr style="border-color: black;">
+<hr style="border-color: black;">
+<hr style="border-color: black;">
+
+<div class="container-login">
+    <h1 class="text-center text-light mb-4">Log Masuk</h1>
+    <p class="text-center text-light mb-4">Sila log masuk akaun anda untuk pendaftaran kematian.</p>
+
+    <!-- NOTIFIKASI / MESEJ FLASH -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mb-4">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show shadow" role="alert">
+                        <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-triangle' }}"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- BORANG LOG MASUK -->
+    <form method="post" action="{{ url_for('login') }}">
+        <div class="mb-3">
+            <label for="email" class="form-label">Alamat Emel</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Kata Laluan</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Log Masuk</button>
+    </form>
+
+    <!-- jika belum daftar -->
+    <div class="text-center mt-3">
+        <p class="text-light">Adakah anda pengguna baru?<br>
+            <a href="{{ url_for('register') }}" class="text-decoration-none" style="color:#00ffcc;">Klik di sini</a> untuk mendaftar</p>
+    </div>
+</div>
+{% endblock %}

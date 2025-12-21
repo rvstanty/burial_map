@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Carta Organisasi & Biro - Burial Map{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <!-- Carta Organisasi -->
+    <h1 class="text-center mb-4">Organisasi Badan Khairat Kematian Sesi 2025-2027</h1>
+
+    <div class="row justify-content-center g-4">
+        {% set organisasi = [
+            {'jawatan': 'Pengerusi', 'nama': 'Mohamad Nasir Bin Ismail', 'peranan': 'Memimpin keseluruhan jawatankuasa dan bertanggungjawab atas keputusan organisasi.'},
+            {'jawatan': 'Timbalan Pengerusi', 'nama': 'Azman Bin Paimon', 'peranan': 'Membantu pengerusi dan bertindak sebagai pengganti jika perlu.'},
+            {'jawatan': 'Setiausaha', 'nama': 'Hajariah Binti Ismail', 'peranan': 'Mengurus dokumentasi, surat menyurat dan laporan mesyuarat.'},
+            {'jawatan': 'Timbalan Setiausaha', 'nama': 'Norlizah Binti Abdul Rahim', 'peranan': 'Membantu tugas setiausaha dan menyokong pengurusan fail.'},
+            {'jawatan': 'Bendahari', 'nama': 'Siti Umairah Binti Musa', 'peranan': 'Bertanggungjawab mengurus kewangan, kutipan dana dan perbelanjaan.'},
+            {'jawatan': 'Timbalan Bendahari', 'nama': 'Sabri Bin Tugiman', 'peranan': 'Membantu tugas Bendahari dan menyokong pengurusan kewangan.'},
+            {'jawatan': 'Pemeriksa Kira-kira', 'nama': 'Adam Bin Samsudin & Sarimah Binti Idris', 'peranan': 'Memantau aliran kewangan dan memastikan ketelusan akaun.'}
+        ] %}
+
+        {% for o in organisasi %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card bg-dark text-light border-light shadow animate__animated animate__fadeIn">
+                <div class="card-header bg-secondary text-white text-center">
+                    <strong>{{ o.jawatan }}</strong>
+                </div>
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ o.nama }}</h5>
+                    <p class="card-text">{{ o.peranan }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <hr id="hubungi" class="my-5 border-light">
+
+    <!-- Nombor Untuk Dihubungi Jika Berlaku Kematian -->
+<h2 class="text-center mt-5 mb-3">Nombor Untuk Dihubungi Jika Berlaku Kematian</h2>
+
+<div class="row justify-content-center mb-5">
+    <div class="col-md-8">
+        <div class="table-responsive">
+            <table class="table table-bordered table-dark table-striped shadow">
+                <thead class="table-secondary text-dark">
+                    <tr>
+                        <th>Jawatan / Nama</th>
+                        <th>No. Telefon</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Penasihat: Imam Omar</td>
+                        <td><a href="tel:0177085688" class="text-light text-decoration-none">017-7085688</a></td>
+                    </tr>
+                    <tr>
+                        <td>Pengerusi: Muhamad Nasir</td>
+                        <td><a href="tel:0194580968" class="text-light text-decoration-none">019-4580968</a></td>
+                    </tr>
+                    <tr>
+                        <td>Timb. Pengerusi: Azman Bin Paimon</td>
+                        <td><a href="tel:0127335859" class="text-light text-decoration-none">012-7335859</a></td>
+                    </tr>
+                    <tr>
+                        <td>AJK: Pn Samuniah</td>
+                        <td><a href="tel:01110857855" class="text-light text-decoration-none">011-10857855</a></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="text-align: center;">Tekan @ Klik pada nombor untuk membuat panggilan telefon</p>
+        </div>
+    </div>
+</div>
+
+ <hr class="my-5 border-light">
+
+    <!-- Biro dan Jawatankuasa Kecil -->
+    <h2 class="text-center mb-4">Biro dan Jawatankuasa Kecil</h2>
+
+    {% set biro = [
+        {
+            'tajuk': 'Perbekalan Kelengkapan Peralatan Jenazah',
+            'warna': 'primary',
+            'ahli': [
+                {'nama': 'Mustapha Nizam Bin Talha (Ketua)', 'telefon': '013-7856704'},
+                {'nama': 'Mohd Sabri Bin Mustapar', 'telefon': '017-7946867'},
+                {'nama': 'Norlizah Bte Abd Rahim', 'telefon': '012-7426196'},
+                {'nama': 'Muhammad Nasir Bin Ismail', 'telefon': '019-4580968'}
+            ]
+        },
+        {
+            'tajuk': 'Van & Pengangkutan',
+            'warna': 'success',
+            'ahli': [
+                {'nama': 'Mohd Rizal Bin Mahat (Ketua)', 'telefon': '011-13075563'},
+                {'nama': 'Lokman Zamri Bin Idris', 'telefon': '012-2347491'},
+                {'nama': 'Muhammad Nasir Bin Ismail', 'telefon': '019-4580968'},
+                {'nama': 'AJK', 'telefon': '-'}
+            ]
+        },
+        {
+            'tajuk': 'Gali Liang & Stor Kubur',
+            'warna': 'warning',
+            'ahli': [
+                {'nama': 'Sadenan Bin Nasif (Ketua)', 'telefon': '012-2347491'},
+                {'nama': 'Lokman Zamri Bin Idris', 'telefon': '012-2347491'},
+                {'nama': 'Rosnizam Bin Sarbin', 'telefon': '011-20926272'},
+                {'nama': 'Shaiful Bin Abd Rahim', 'telefon': '017-7190939'},
+                {'nama': 'AJK / Kariah FAT1', 'telefon': '-'}
+            ]
+        },
+        {
+            'tajuk': 'Pengurusan Mandi Kapan Jenazah Lelaki',
+            'warna': 'danger',
+            'ahli': [
+                {'nama': 'Sabri Bin Tugiman (Ketua)', 'telefon': '019-7883527'},
+                {'nama': 'Zulkifli Bin Ahmad', 'telefon': '011-74736849'},
+                {'nama': 'Hj Omar Bin Hamid', 'telefon': '017-7085688'},
+                {'nama': 'Pemandu Van/Waris Simati/AJK/Kariah FAT1', 'telefon': '-'}
+            ]
+        },
+        {
+            'tajuk': 'Pengurusan Mandi Kapan Jenazah Wanita',
+            'warna': 'info',
+            'ahli': [
+                {'nama': 'Fatimah Binti Seis (Ketua)', 'telefon': '017-7085688'},
+                {'nama': 'Samuniah Binti Saman', 'telefon': '011-10857855'},
+                {'nama': 'Norlizah Binti Abd Rahim', 'telefon': '012-7426196'},
+                {'nama': 'Pemandu Van/Waris Simati/AJK/Kariah FAT1', 'telefon': '-'}
+            ]
+        },
+        {
+            'tajuk': 'Penerangan & Multimedia',
+            'warna': 'secondary',
+            'ahli': [
+                {'nama': 'Azmi Bin Daud (Ketua)', 'telefon': '012-7426196'},
+                {'nama': 'Poziah Binti Ibrahim', 'telefon': '013-8935450'},
+                {'nama': 'Siti Umairah Binti Musa', 'telefon': '013-3719406'}
+            ]
+        }
+    ] %}
+
+    <div class="row g-4">
+        {% for b in biro %}
+        <div class="col-md-6">
+            <div class="card bg-dark text-light border-{{ b.warna }} shadow-sm h-100">
+                <div class="card-header bg-{{ b.warna }} text-white text-center">
+                    <strong>{{ b.tajuk }}</strong>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-sm mb-0">
+                            <thead>
+                                <tr class="table-{{ b.warna }}">
+                                    <th>Nama</th>
+                                    <th>No. Tel</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ahli in b.ahli %}
+                                <tr>
+                                    <td>{{ ahli.nama }}</td>
+                                    <td>{{ ahli.telefon }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<p> </p>
+<p> </p>
+<p> </p>
+{% endblock %}

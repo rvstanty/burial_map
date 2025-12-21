@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}Laman Utama - Perkuburan Felda Air Tawar 1{% endblock %}
+
+{% block content %}
+
+<div id="greetingOverlay">
+    <div class="greeting-content container">
+        <img src="{{ url_for('static', filename='images/FAT.png') }}" alt="Logo FAT" class="greeting-logo">
+        <h1 class="display-4 fw-bold" style="color: #00ffcc;">Selamat Datang</h1>
+        <h3 class="text-white">Pemetaan Perkuburan <br> Felda Air Tawar 1</h3>
+        <p class="mt-4 text-secondary">Sistem Maklumat Digital & Navigasi Liang Lahad</p>
+        <div class="spinner-border text-primary mt-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+
+<style>
+
+    /* Greeting Overlay */
+    #greetingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(18, 18, 18, 0.95);
+        z-index: 9999; 
+        display: none; /* Sembunyi secara default */
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: opacity 0.8s ease-in-out;
+    }
+
+    .greeting-content {
+        animation: zoomIn 1s ease-out;
+    }
+
+    .greeting-logo {
+        max-width: 150px;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 0 15px rgba(0, 255, 204, 0.5));
+    }
+
+    @keyframes zoomIn {
+        0% { opacity: 0; transform: scale(0.8); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Animasi Fade Out */
+    .fade-out {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .hero-img {
+        height: 60vh;
+        object-fit: cover;
+    }
+
+    @media (min-width: 768px) {
+        .hero-img {
+            height: 75vh;
+        }
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        padding: 1rem;
+        width: 90%;
+    }
+
+    .text-shadow {
+        text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.9);
+    }
+
+    .carousel-inner::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0);
+        z-index: 1;
+    }
+
+    .responsive-text {
+        font-size: 1.2rem;
+    }
+
+    @media (min-width: 768px) {
+        .responsive-text {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .responsive-text {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<div id="heroSlider" class="carousel slide" data-bs-ride="carousel" style="position: relative;">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="{{ url_for('static', filename='images/view2.jpg') }}" class="d-block w-100 hero-img" alt="Slide 1">
+        </div>
+        <div class="carousel-item">
+            <img src="{{ url_for('static', filename='images/view1.jpg') }}" class="d-block w-100 hero-img" alt="Slide 2">
+        </div>
+        <div class="carousel-item">
+            <img src="{{ url_for('static', filename='images/view3.jpg') }}" class="d-block w-100 hero-img" alt="Slide 3">
+        </div>
+        <div class="carousel-item">
+            <img src="{{ url_for('static', filename='images/view4.jpeg') }}" class="d-block w-100 hero-img" alt="Slide 4">
+        </div>
+        <div class="carousel-item">
+            <img src="{{ url_for('static', filename='images/view5.jpeg') }}" class="d-block w-100 hero-img" alt="Slide 5">
+        </div>
+    </div>
+</div>
+
+<div class="hero-overlay text-center text-white">
+    <h1 class="fw-bold text-shadow responsive-text">Pemetaan Perkuburan Felda Air Tawar 1</h1>
+    <p class="text-shadow" style="text-align: center;">Selamat datang ke Sistem Maklumat Perkuburan. Gunakan carian di bawah untuk mencari liang mengikut nama atau seksyen.</p>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form method="get" action="{{ url_for('home') }}" class="mb-4">
+                <div class="input-group">
+                    <input type="text" name="query" class="form-control" placeholder="Cari nama atau seksyen" value="{{ query }}">
+                    <button type="submit" class="btn btn-primary">Cari</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<hr class="my-5 border-light" style="border-color: rgb(18, 18, 18);">
+
+<div class="container mt-5 mb-5">
+    
+    {% if graves or daftar_kematian_records %}
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <h3 class="mb-3">Hasil Carian:</h3>
+                {% if graves %}
+                    <h5>Senarai Kubur:</h5>
+                    <ul class="list-group mb-4">
+                    {% for grave in graves %}
+                        <li class="list-group-item">
+                            <a href="{{ url_for('grave_detail', grave_id=grave.id) }}">{{ grave.name }}</a>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    {% elif query %}
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <p>Tiada liang atau rekod daftar kematian ditemui yang sepadan dengan "<strong>{{ query }}</strong>".</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row justify-content-center mt-5">
+    <div class="col-lg-10">
+        <h2 class="text-center mb-3">Lokasi Tanah Perkuburan</h2>
+        <div class="ratio ratio-16x9 rounded shadow">
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.197412781444!2d103.92484407584107!3d1.633282960686389!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31d06fb6b5952f9b%3A0x6b69b821a3646547!2sTanah%20Perkuburan%20Islam%20Felda%20Air%20Tawar%201!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy" 
+                width="600" 
+                height="450" 
+                style="border:0;" 
+                allowfullscreen="" 
+                loading="lazy" 
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+        </div>
+    </div>
+</div>
+
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-6 text-center">
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('daftar_kematian') }}" class="btn btn-primary w-100">Daftar Kematian</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<hr class="my-5 border-light" style="border-color: rgb(18, 18, 18);">
+
+<div class="container mt-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h2 class="mb-4">Keahlian Khairat Kematian dan Kebajikan Orang Islam</h2>
+            <p style="text-align: center;" class="text-justify">
+                Kami mengalukan penyertaan anda sebagai ahli Khairat Kematian Felda Air Tawar 1. Jika anda masih belum mendaftar, marilah bersama-sama menyertai kami. 
+                Keistimewaan dan manfaat sebagai ahli kini telah dikemas kini berdasarkan keputusan Mesyuarat Agung Tahun 2024.
+            </p>
+            <p style="text-align: center;" class="text-justify">
+                Bagi ahli sedia ada, anda digalakkan untuk membuat pembayaran yuran dan sumbangsih seperti yang dinyatakan dalam poster yang dilampirkan.
+                Sekiranya anda mempunyai sebarang pertanyaan atau ingin membuat semakan, sila hubungi nombor telefon yang tertera.
+            </p>
+            <p style="text-align: center;" class="fw-bold text-justify">Terima kasih atas sokongan anda!</p>
+
+            <div class="row justify-content-center mt-4">
+                <div class="col-md-6 text-center">
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLScTCjhxhBgYtOPrbT3meXdk54Nxr6l_dxpRVu8nTOlDGeTpBQ/viewform" class="btn btn-primary w-100">Daftar Sebagai Ahli</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div id="posterCarousel" class="carousel slide shadow rounded" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="{{ url_for('static', filename='images/poster1.jpg') }}" class="d-block w-100 rounded" alt="Poster 1">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="{{ url_for('static', filename='images/poster2.jpg') }}" class="d-block w-100 rounded" alt="Poster 2">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#posterCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Sebelumnya</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#posterCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Seterusnya</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr class="my-5 border-light" style="border-color: rgb(18, 18, 18);">
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const overlay = document.getElementById('greetingOverlay');
+        const COOLDOWN_TIME = 1 * 60 * 1000; // minit dalam milisaat
+
+        function showGreeting() {
+            overlay.style.display = 'flex';
+            
+            // hide overlay secara automatik selepas 4 saat
+            setTimeout(() => {
+                overlay.classList.add('fade-out');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 800); // Tunggu animasi fade out selesai
+            }, 4000);
+        }
+
+        // Time check
+        const lastShown = localStorage.getItem('lastGreetingTime');
+        const now = new Date().getTime();
+
+        if (!lastShown || (now - lastShown) > COOLDOWN_TIME) {
+            showGreeting();
+            localStorage.setItem('lastGreetingTime', now);
+        }
+
+        // Script untuk Hero Slider (kekalkan yang lama)
+        const slider = document.getElementById('heroSlider');
+        if (slider) {
+            new bootstrap.Carousel(slider, {
+                interval: 4000,
+                ride: 'carousel'
+            });
+        }
+    });
+</script>
+
+{% endblock %}
