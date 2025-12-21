@@ -3,18 +3,27 @@
 {% block title %}Laman Utama - Perkuburan Felda Air Tawar 1{% endblock %}
 
 {% block content %}
-
-<div id="greetingOverlay">
-    <div class="greeting-content container">
-        <img src="{{ url_for('static', filename='images/FAT.png') }}" alt="Logo FAT" class="greeting-logo">
-        <h1 class="display-4 fw-bold" style="color: #00ffcc;">Selamat Datang</h1>
-        <h3 class="text-white">Pemetaan Perkuburan <br> Felda Air Tawar 1</h3>
-        <p class="mt-4 text-secondary">Sistem Maklumat Digital & Navigasi Liang Lahad</p>
-        <div class="spinner-border text-primary mt-3" role="status">
-            <span class="visually-hidden">Loading...</span>
+<!--   
+    <div id="greetingOverlay">
+            <div class="greeting-content container">
+                <img src="{{ url_for('static', filename='images/FAT.png') }}" alt="Logo FAT" class="greeting-logo">
+                <h1 class="display-4 fw-bold" style="color: #00ffcc;">Selamat Datang</h1>
+                <h3 class="text-white">Pemetaan Perkuburan <br> Felda Air Tawar 1</h3>
+                <p class="mt-4 text-secondary">Sistem Maklumat Digital & Navigasi Liang Lahad</p>
+                <div class="spinner-border text-primary mt-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
         </div>
+    -->
+    
+    <div id="maintenance-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center;">
+        <i class="fas fa-tools" style="font-size: 50px; margin-bottom: 20px;"></i>
+        <h2>Sesi Pemulihan Sistem</h2>
+        <p>Maaf... Kami sedang mengemaskini data untuk keselesaan anda.<br>Sila layari di lain masa.</p>
+        <div class="spinner-border text-light" role="status"></div>
     </div>
-</div>
+
 
 <style>
 
