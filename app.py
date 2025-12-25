@@ -6,7 +6,7 @@ from sqlalchemy import or_
 app = Flask(__name__)
 
 # --- PEMBETULAN LALUAN DATABASE (ABSOLUTE PATH) ---
-# Memastikan database dikesan dalam folder yang sama dengan app.py
+# Memastikan database dikesan dalam folder yang sama dengan app.py walaupun dijalankan oleh Gunicorn
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(basedir, 'database.db')
 
@@ -25,17 +25,25 @@ create_tables()
 
 @app.route('/')
 def home():
-    query = request.args.get('query', '')
+    # Mengambil input carian dan membuang ruang kosong di hujung/pangkal
+    query = request.args.get('query', '').strip()
     
+    graves = []
+    daftar_kematian_records = []
+    
+    # LOGIK: Hanya lakukan carian jika 'query' tidak kosong
     if query:
-        # Logik carian jika pengguna memasukkan input
         like_pattern = f"%{query}%"
+        
+        # Cari dalam jadual Grave
         graves = Grave.query.filter(
             or_(
                 Grave.name.ilike(like_pattern),
                 Grave.section.ilike(like_pattern)
             )
         ).all()
+        
+        # Cari dalam jadual DaftarKematian
         daftar_kematian_records = DaftarKematian.query.filter(
             or_(
                 DaftarKematian.deceased_name.ilike(like_pattern),
@@ -44,11 +52,11 @@ def home():
                 DaftarKematian.heir_contact.ilike(like_pattern)
             )
         ).all()
+        
+        print(f"Hasil carian untuk '{query}': {len(graves)} kubur, {len(daftar_kematian_records)} rekod kematian.")
     else:
-        # PAPARAN ASAL: Jika tiada carian, paparkan semua rekod
-        # Ini memastikan website tidak nampak kosong semasa mula dibuka
-        graves = Grave.query.all()
-        daftar_kematian_records = DaftarKematian.query.all()
+        # Jika tiada carian (halaman baru dibuka), graves & daftar_kematian_records kekal kosong []
+        print("Halaman utama dibuka: Senarai rekod disembunyikan secara default.")
 
     return render_template('home.html', 
                            graves=graves, 
@@ -114,7 +122,6 @@ def daftar_kematian():
             flash('Sila isi semua maklumat.', 'error')
             return redirect(url_for('daftar_kematian'))
 
-        # Gunakan try-except untuk mengelakkan ralat jika age_at_death bukan nombor
         try:
             age_val = int(age_at_death)
         except ValueError:
@@ -184,5 +191,4 @@ def terma():
     return render_template('terma.html')
 
 if __name__ == '__main__':
-    # Pastikan host 0.0.0.0 untuk akses AWS
     app.run(debug=True, host='0.0.0.0', port=5000)
