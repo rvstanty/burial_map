@@ -4,14 +4,19 @@ import os
 from sqlalchemy import or_
 
 app = Flask(__name__)
-db_path = os.path.abspath('database.db')
-print(f"Using database at: {db_path}")
+
+# --- PEMBETULAN LALUAN DATABASE (ABSOLUTE PATH) ---
+# Memastikan database dikesan dalam folder yang sama dengan app.py
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(basedir, 'database.db')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key_here'
 
 db.init_app(app)
 
+# Fungsi untuk memastikan table dicipta jika belum wujud
 def create_tables():
     with app.app_context():
         db.create_all()
@@ -21,10 +26,9 @@ create_tables()
 @app.route('/')
 def home():
     query = request.args.get('query', '')
-    print(f"Search query: {query}")
-    graves = []
-    daftar_kematian_records = []
+    
     if query:
+        # Logik carian jika pengguna memasukkan input
         like_pattern = f"%{query}%"
         graves = Grave.query.filter(
             or_(
@@ -40,8 +44,16 @@ def home():
                 DaftarKematian.heir_contact.ilike(like_pattern)
             )
         ).all()
-    print(f"Found graves: {len(graves)}, daftar_kematian_records: {len(daftar_kematian_records)}")
-    return render_template('home.html', graves=graves, daftar_kematian_records=daftar_kematian_records, query=query)
+    else:
+        # PAPARAN ASAL: Jika tiada carian, paparkan semua rekod
+        # Ini memastikan website tidak nampak kosong semasa mula dibuka
+        graves = Grave.query.all()
+        daftar_kematian_records = DaftarKematian.query.all()
+
+    return render_template('home.html', 
+                           graves=graves, 
+                           daftar_kematian_records=daftar_kematian_records, 
+                           query=query)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -53,9 +65,7 @@ def register():
             flash('Alamat email telah didaftarkan. Sila log masuk atau gunakan email lain.', 'error')
             return redirect(url_for('register'))
 
-        new_user = User(
-            email=email
-        )
+        new_user = User(email=email)
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
@@ -104,6 +114,13 @@ def daftar_kematian():
             flash('Sila isi semua maklumat.', 'error')
             return redirect(url_for('daftar_kematian'))
 
+        # Gunakan try-except untuk mengelakkan ralat jika age_at_death bukan nombor
+        try:
+            age_val = int(age_at_death)
+        except ValueError:
+            flash('Umur mestilah dalam bentuk nombor.', 'error')
+            return redirect(url_for('daftar_kematian'))
+
         grave = Grave.query.filter_by(lot_number=stone_number).first()
         if not grave:
             grave = Grave(
@@ -123,7 +140,7 @@ def daftar_kematian():
             deceased_name=deceased_name,
             stone_number=stone_number,
             date_of_birth=date_of_birth,
-            age_at_death=int(age_at_death),
+            age_at_death=age_val,
             heir_name=heir_name,
             heir_contact=heir_contact
         )
@@ -137,8 +154,7 @@ def daftar_kematian():
 
 @app.route('/logout')
 def logout():
-    session.pop('user_id', None)
-    session.pop('user_email', None)
+    session.clear()
     flash('Anda telah log keluar.', 'success')
     return redirect(url_for('home'))
 
@@ -150,14 +166,6 @@ def grave_detail(grave_id):
         return redirect(url_for('login'))
     grave = Grave.query.get_or_404(grave_id)
     return render_template('grave_detail.html', grave=grave)
-
-@app.route('/test_data')
-def test_data():
-    graves = Grave.query.all()
-    daftar_kematian_records = DaftarKematian.query.all()
-    graves_list = [f"{g.name} ({g.section})" for g in graves]
-    daftar_list = [f"{d.deceased_name} (Stone: {d.stone_number})" for d in daftar_kematian_records]
-    return f"Graves: {graves_list}<br>Daftar Kematian: {daftar_list}"
 
 @app.route('/organisasi')
 def organisasi():
@@ -175,6 +183,6 @@ def privasi():
 def terma():
     return render_template('terma.html')
 
-
 if __name__ == '__main__':
+    # Pastikan host 0.0.0.0 untuk akses AWS
     app.run(debug=True, host='0.0.0.0', port=5000)
