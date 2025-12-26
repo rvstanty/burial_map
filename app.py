@@ -5,7 +5,6 @@ from sqlalchemy import or_
 
 app = Flask(__name__)
 
-# --- PEMBETULAN LALUAN DATABASE (ABSOLUTE PATH) ---
 # Memastikan database dikesan dalam folder yang sama dengan app.py walaupun dijalankan oleh Gunicorn
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(basedir, 'database.db')
