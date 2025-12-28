@@ -156,12 +156,15 @@
                 <div class="input-group shadow-lg rounded-3 overflow-hidden">
                     <input type="text" 
                            name="query" 
+                           id="searchField"
                            class="form-control form-control-lg custom-search-input" 
                            placeholder="Masukkan nama arwah atau No. Liang..." 
-                           value="{{ query }}">
+                           autocomplete="off">
+
                         <button type="submit" class="btn btn-primary btn-lg px-4">
                             <i class="fas fa-search"></i> Cari
                         </button>
+
                     </div>
                 </form>
             </div>
@@ -271,14 +274,25 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+    
+        // 1. PAKSA KOSONGKAN SEARCH FIELD
+        const searchField = document.querySelector('input[name="query"]');
+        if (searchField) {
+            searchField.value = ''; // Set nilai kepada kosong setiap kali refresh
+        }
+
+        // 2. LOGIK GREETING OVERLAY
         const overlay = document.getElementById('greetingOverlay');
         const COOLDOWN_TIME = 5 * 60 * 1000; 
 
         function showGreeting() {
+            if (!overlay) return; // Guard clause jika overlay tiada
             overlay.style.display = 'flex';
             setTimeout(() => {
                 overlay.classList.add('fade-out');
-                setTimeout(() => { overlay.style.display = 'none'; }, 800);
+                setTimeout(() => { 
+                    overlay.style.display = 'none'; 
+                }, 800);
             }, 4000);
         }
 
@@ -290,11 +304,13 @@
             localStorage.setItem('lastGreetingTime', now);
         }
 
+        // 3. LOGIK HERO SLIDER (CAROUSEL)
         const slider = document.getElementById('heroSlider');
         if (slider) {
             new bootstrap.Carousel(slider, { interval: 4000, ride: 'carousel' });
-        }
-    });
+    }
+});
+
 </script>
 
 {% endblock %}

@@ -54,7 +54,7 @@ def home():
         
         print(f"Hasil carian untuk '{query}': {len(graves)} kubur, {len(daftar_kematian_records)} rekod kematian.")
     else:
-        # Jika tiada carian (halaman baru dibuka), graves & daftar_kematian_records kekal kosong []
+       
         print("Halaman utama dibuka: Senarai rekod disembunyikan secara default.")
 
     return render_template('home.html', 
