@@ -140,23 +140,52 @@
         }
 
         footer {
-            text-align: center;
-            background-color: #222;
-            padding: 20px 0;
-            position: relative;
-            bottom: 0;
+            background-color: #1a1a1a; /* Hitam yang sedikit cerah dari body */
+            color: #adb5bd;
+            padding: 40px 0 20px 0;
             width: 100%;
-            color: #fff;
+            border-top: 1px solid rgba(0, 255, 204, 0.1);
+            margin-top: auto; /* Memastikan footer sentiasa di bawah */
         }
 
-        footer a {
+        .footer-link {
             color: #ffffff;
             text-decoration: none;
-            margin: 0 10px;
+            transition: color 0.3s ease, border-bottom 0.3s ease;
+            border-bottom: 1px solid transparent;
+            font-size: 0.85rem;
         }
 
-        footer a:hover {
+        .footer-link:hover {
             color: #00ffcc;
+        }
+
+        .footer-logo {
+            height: 50px;
+            margin: 10px;
+            filter: grayscale(20%) brightness(90%);
+            transition: filter 0.3s ease;
+        }
+
+        .footer-logo:hover {
+            filter: grayscale(0%) brightness(100%);
+        }
+
+        .email-link {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .email-link:hover {
+            color: #00cc99;
+        }
+
+        .copyright-text {
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.7;
         }
 
         .img-fluid {
@@ -309,28 +338,49 @@
 
 <!-- Footer -->
     <footer>
-        <p><b>Copyright &copy; 2025 First Axe Team<br>Civil Defence Auxiliary</b></p>
-        
-        <!-- Pautan Polisi -->
-        <p>
-            <a href="{{ url_for('privasi') }}">Dasar Privasi</a> | <a href="{{ url_for('terma') }}">Terma Perkhidmatan</a>
-        </p>
+        <div class="container-fluid px-4">
+            <div class="row align-items-center">
+                
+                <div class="col-md-4 text-center text-md-start mb-4 mb-md-0">
+                    <p class="copyright-text mb-1">
+                        <b>Copyright &copy; 2025</b>
+                    </p>
+                    <p class="small mb-0 text-white-50">First Axe Team Civil Defence Auxiliary</p>
+                </div>
 
-        <!-- Alamat Emel -->
-        <p style="text-align: center;">
-            Sebarang aduan berkenaan website boleh emel ke: <br>
-            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=firstaxeteam@gmail.com" target="_blank">
-                <b>firstaxeteam@gmail.com</b>
-            </a>
-        </p>
+                <div class="col-md-4 text-center mb-4 mb-md-0">
+                    <p class="mb-2">
+                        <a href="{{ url_for('privasi') }}" class="footer-link">Dasar Privasi</a> 
+                        <span class="mx-2 text-secondary">|</span> 
+                        <a href="{{ url_for('terma') }}" class="footer-link">Terma Perkhidmatan</a>
+                    </p>
+                    <p class="small mb-0">
+                        Aduan : 
+                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=firstaxeteam@gmail.com" target="_blank" class="email-link">
+                            firstaxeteam@gmail.com
+                        </a>
+                    </p>
+                </div>
 
-        <!-- Logo Sokongan -->
-        <p>
-            <img src="{{ url_for('static', filename='images/apm.png') }}" alt="Logo APM" height="64"/> 
-            <img src="{{ url_for('static', filename='images/madani.png') }}" alt="Logo Madani" height="64"/> 
-            <img src="{{ url_for('static', filename='images/kam.png') }}" alt="Logo KAM" height="64"/> 
-            <img src="{{ url_for('static', filename='images/FAT.png') }}" alt="Logo FAT" height="64"/>
-        </p>
+                <div class="col-md-4 text-center text-md-end">
+                    <div class="d-flex justify-content-center justify-content-md-end flex-wrap gap-2">
+                        <img src="{{ url_for('static', filename='images/apm.png') }}" alt="APM" class="footer-logo"/> 
+                        <img src="{{ url_for('static', filename='images/madani.png') }}" alt="Madani" class="footer-logo"/> 
+                        <img src="{{ url_for('static', filename='images/kam.png') }}" alt="KAM" class="footer-logo"/> 
+                        <img src="{{ url_for('static', filename='images/FAT.png') }}" alt="FAT" class="footer-logo"/>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="border-secondary mt-4 mb-3" style="opacity: 0.1;">
+            
+            <div class="text-center">
+                <p style="font-size: 0.7rem;" class="text-secondary mb-0 text-uppercase">
+                    Portal Pemetaan Perkuburan Felda Air Tawar 1
+                </p>
+            </div>
+        </div>
     </footer>
 
 

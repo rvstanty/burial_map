@@ -1,8 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
-
-from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -25,6 +24,8 @@ class Grave(db.Model):
     picture_url = db.Column(db.String(200))
     family_details = db.Column(db.Text)
     notes = db.Column(db.Text)
+    
+    # Relationship ke DaftarKematian
     daftar_kematian = db.relationship('DaftarKematian', back_populates='grave', uselist=False)
 
 class DaftarKematian(db.Model):
@@ -36,4 +37,11 @@ class DaftarKematian(db.Model):
     age_at_death = db.Column(db.Integer, nullable=False)
     heir_name = db.Column(db.String(100), nullable=False)
     heir_contact = db.Column(db.String(200), nullable=False)
+
+    # --- Kolum Baharu Untuk Drop Pin ---
+    selected_plot = db.Column(db.String(50)) # Menyimpan fleft, fright, mid, atau back
+    coord_x = db.Column(db.Float)           # Koordinat X dalam peratus (%)
+    coord_y = db.Column(db.Float)           # Koordinat Y dalam peratus (%)
+    # -----------------------------------
+
     grave = db.relationship('Grave', back_populates='daftar_kematian')

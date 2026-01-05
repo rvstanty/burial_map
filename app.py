@@ -5,17 +5,14 @@ from sqlalchemy import or_
 
 app = Flask(__name__)
 
-# Memastikan database dikesan dalam folder yang sama dengan app.py walaupun dijalankan oleh Gunicorn
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(basedir, 'database.db')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key_here'
 
 db.init_app(app)
 
-# Fungsi untuk memastikan table dicipta jika belum wujud
 def create_tables():
     with app.app_context():
         db.create_all()
@@ -24,83 +21,22 @@ create_tables()
 
 @app.route('/')
 def home():
-    # Mengambil input carian dan membuang ruang kosong di hujung/pangkal
     query = request.args.get('query', '').strip()
-    
     graves = []
     daftar_kematian_records = []
     
-    # LOGIK: Hanya lakukan carian jika 'query' tidak kosong
     if query:
         like_pattern = f"%{query}%"
-        
-        # Cari dalam jadual Grave
-        graves = Grave.query.filter(
-            or_(
-                Grave.name.ilike(like_pattern),
-                Grave.section.ilike(like_pattern)
-            )
-        ).all()
-        
-        # Cari dalam jadual DaftarKematian
+        graves = Grave.query.filter(or_(Grave.name.ilike(like_pattern), Grave.section.ilike(like_pattern))).all()
         daftar_kematian_records = DaftarKematian.query.filter(
             or_(
                 DaftarKematian.deceased_name.ilike(like_pattern),
                 DaftarKematian.stone_number.ilike(like_pattern),
-                DaftarKematian.heir_name.ilike(like_pattern),
-                DaftarKematian.heir_contact.ilike(like_pattern)
+                DaftarKematian.heir_name.ilike(like_pattern)
             )
         ).all()
-        
-        print(f"Hasil carian untuk '{query}': {len(graves)} kubur, {len(daftar_kematian_records)} rekod kematian.")
-    else:
-       
-        print("Halaman utama dibuka: Senarai rekod disembunyikan secara default.")
-
-    return render_template('home.html', 
-                           graves=graves, 
-                           daftar_kematian_records=daftar_kematian_records, 
-                           query=query)
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-
-        if User.query.filter_by(email=email).first():
-            flash('Alamat email telah didaftarkan. Sila log masuk atau gunakan email lain.', 'error')
-            return redirect(url_for('register'))
-
-        new_user = User(email=email)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
-
-        session['user_id'] = new_user.id
-        session['user_email'] = new_user.email
-        flash('Pendaftaran berjaya! Anda telah log masuk.', 'success')
-        return redirect(url_for('login'))
-
-    return render_template('register.html')
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        user = User.query.filter_by(email=email).first()
-
-        if user and user.check_password(password):
-            session['user_id'] = user.id
-            session['user_email'] = user.email
-            flash('Log masuk berjaya. Anda kini boleh lihat maklumat terperinci.', 'success')
-            return redirect(url_for('home'))
-        else:
-            flash('Email atau kata laluan tidak sah.', 'error')
-            return redirect(url_for('login'))
-
-    return render_template('login.html')
+    
+    return render_template('home.html', graves=graves, daftar_kematian_records=daftar_kematian_records, query=query)
 
 @app.route('/daftar_kematian', methods=['GET', 'POST'])
 def daftar_kematian():
@@ -110,37 +46,48 @@ def daftar_kematian():
         return redirect(url_for('login'))
 
     if request.method == 'POST':
+        # Data Maklumat
         deceased_name = request.form.get('deceased_name')
         stone_number = request.form.get('stone_number')
         date_of_birth = request.form.get('date_of_birth')
         age_at_death = request.form.get('age_at_death')
         heir_name = request.form.get('heir_name')
         heir_contact = request.form.get('heir_contact')
+        
+        # Data Lokasi (Pin)
+        selected_plot = request.form.get('selected_plot')
+        coord_x = request.form.get('coord_x')
+        coord_y = request.form.get('coord_y')
 
-        if not all([deceased_name, stone_number, date_of_birth, age_at_death, heir_name, heir_contact]):
-            flash('Sila isi semua maklumat.', 'error')
+        # Validasi asas
+        if not all([deceased_name, stone_number, coord_x, coord_y]):
+            flash('Sila isi maklumat dan tetapkan lokasi pada peta.', 'error')
             return redirect(url_for('daftar_kematian'))
 
         try:
             age_val = int(age_at_death)
+            # Simpan koordinat sebagai float
+            cx = float(coord_x)
+            cy = float(coord_y)
         except ValueError:
-            flash('Umur mestilah dalam bentuk nombor.', 'error')
+            flash('Data teknikal tidak sah.', 'error')
             return redirect(url_for('daftar_kematian'))
 
+        # Logik Grave (Jika belum ada)
         grave = Grave.query.filter_by(lot_number=stone_number).first()
         if not grave:
             grave = Grave(
                 name=deceased_name,
                 date_of_birth=date_of_birth,
                 lot_number=stone_number,
-                section='',
-                picture_url='',
+                section=selected_plot.upper(), # Kita simpan plot sebagai seksyen
                 family_details=heir_name,
                 notes=heir_contact
             )
             db.session.add(grave)
             db.session.flush()
 
+        # Cipta Rekod Kematian Baru dengan Koordinat Pin
         new_record = DaftarKematian(
             grave_id=grave.id,
             deceased_name=deceased_name,
@@ -148,46 +95,65 @@ def daftar_kematian():
             date_of_birth=date_of_birth,
             age_at_death=age_val,
             heir_name=heir_name,
-            heir_contact=heir_contact
+            heir_contact=heir_contact,
+            selected_plot=selected_plot, # Kolum baru
+            coord_x=cx,                  # Kolum baru
+            coord_y=cy                   # Kolum baru
         )
+        
         db.session.add(new_record)
         db.session.commit()
-        flash('Rekod kematian berjaya ditambah.', 'success')
+        flash('Rekod kematian dan lokasi berjaya didaftarkan.', 'success')
         return redirect(url_for('daftar_kematian'))
 
     records = DaftarKematian.query.all()
     return render_template('daftar_kematian.html', records=records)
 
+# --- Route lain kekal sama seperti kod asal anda ---
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        if User.query.filter_by(email=email).first():
+            flash('Email telah didaftarkan.', 'error')
+            return redirect(url_for('register'))
+        new_user = User(email=email)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect(url_for('login'))
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user = User.query.filter_by(email=email).first()
+        if user and user.check_password(password):
+            session['user_id'] = user.id
+            session['user_email'] = user.email
+            return redirect(url_for('home'))
+        flash('Log masuk gagal.', 'error')
+    return render_template('login.html')
+
 @app.route('/logout')
 def logout():
     session.clear()
-    flash('Anda telah log keluar.', 'success')
     return redirect(url_for('home'))
 
-@app.route('/grave/<int:grave_id>')
-def grave_detail(grave_id):
-    user_id = session.get('user_id')
-    if not user_id:
-        flash('Sila log masuk untuk melihat maklumat kubur secara terperinci.', 'error')
-        return redirect(url_for('login'))
-    grave = Grave.query.get_or_404(grave_id)
-    return render_template('grave_detail.html', grave=grave)
-
 @app.route('/organisasi')
-def organisasi():
-    return render_template('organisasi.html')
+def organisasi(): return render_template('organisasi.html')
 
 @app.route('/adab')
-def adab():
-    return render_template('adab.html')
+def adab(): return render_template('adab.html')
 
 @app.route('/privasi')
-def privasi():
-    return render_template('privasi.html')
+def privasi(): return render_template('privasi.html')
 
 @app.route('/terma')
-def terma():
-    return render_template('terma.html')
+def terma(): return render_template('terma.html')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

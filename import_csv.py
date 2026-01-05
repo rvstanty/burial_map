@@ -40,9 +40,15 @@ def import_csv_to_db(csv_path):
                         date_of_birth='',  # unknown
                         age_at_death=0,    # unknown
                         heir_name=heir_name,
-                        heir_contact=heir_contact
+                        heir_contact=heir_contact,
+                        # --- PERUBAHAN DI SINI ---
+                        # Kita letakkan nilai default untuk data import
+                        selected_plot='fleft', # Setkan ke satu plot default (cth: depan kiri)
+                        coord_x=0.0,           # Setkan koordinat ke 0 supaya tidak error
+                        coord_y=0.0            # Setkan koordinat ke 0 supaya tidak error
                     )
                     db.session.add(new_record)
+            
             db.session.commit()
         print("CSV data imported successfully.")
 
