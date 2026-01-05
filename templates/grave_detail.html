@@ -1,37 +1,184 @@
 {% extends "base.html" %}
 
-{% block title %}Butiran Kubur{% endblock %}
+{% block title %}Butiran Kubur - {{ grave.deceased_name }}{% endblock %}
 
 {% block content %}
-<hr class="my-5 border-light" style="border-color: rgb(18, 18, 18);">
-<div class="container">
-    <div class="card bg-dark text-light shadow-lg mb-4" style="animation: fadeIn 0.8s ease-out;">
-        <div class="card-header border-bottom border-secondary">
-            <h2 class="mb-0 text-center unna-regular">Maklumat Pengebumian</h2>
-        </div>
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <p><strong>Nama:</strong> {{ grave.name }}</p>
-                    <!-- <p><strong>Tarikh Lahir:</strong> {{ grave.date_of_birth }}</p> -->
-                    <p><strong>Tarikh Pemergian:</strong> {{ grave.date_of_death }}</p>
-                    <p><strong>Nombor Liang:</strong> {{ grave.lot_number }}</p>
-                    <p><strong>Alamat:</strong> {{ grave.section }}</p>
+<style>
+    :root {
+        --cyan-accent: #00ffcc;
+        --dark-bg: #1c1c1c;
+    }
+
+    .text-cyan { color: var(--cyan-accent); }
+    
+    .detail-card {
+        background: var(--dark-bg);
+        border: 1px solid #333;
+        border-radius: 15px;
+        overflow: hidden;
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    .info-section {
+        padding: 30px;
+        border-right: 1px solid #333;
+    }
+
+    /* Reka bentuk Peta */
+    .map-display-container {
+        background: #000;
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+        border: 2px solid #444;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+    }
+
+    .map-wrapper-detail {
+        position: relative;
+        width: 100%;
+        display: block;
+    }
+
+    #detailMapImage {
+        width: 100%;
+        height: auto;
+        display: block;
+        opacity: 0.7; /* Gelapkan sedikit imej supaya pin menonjol */
+    }
+
+    /* Pin Merah - Menggunakan CSS Variables untuk mengelakkan ralat VS Code */
+    .pin-detail {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        background-color: #ff3e3e;
+        border: 3px solid white;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        z-index: 10;
+        animation: pulsePin 1.5s infinite;
+        
+        /* Mengambil nilai daripada inline style */
+        left: var(--coord-x);
+        top: var(--coord-y);
+        
+        /* Adjust center point offset */
+        margin-left: -14px;
+        margin-top: -28px;
+    }
+
+    .pin-detail::after {
+        content: "";
+        width: 10px;
+        height: 10px;
+        margin: 6px 0 0 6px;
+        background: #fff;
+        position: absolute;
+        border-radius: 50%;
+    }
+
+    @keyframes pulsePin {
+        0% { transform: rotate(-45deg) scale(1); box-shadow: 0 0 0 rgba(255, 62, 62, 0); }
+        50% { transform: rotate(-45deg) scale(1.2); box-shadow: 0 0 20px rgba(255, 62, 62, 0.6); }
+        100% { transform: rotate(-45deg) scale(1); box-shadow: 0 0 0 rgba(255, 62, 62, 0); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+        .info-section { border-right: none; border-bottom: 1px solid #333; }
+        .pin-detail { width: 22px; height: 22px; margin-left: -11px; margin-top: -22px; }
+    }
+
+    .btn-outline-cyan {
+        color: var(--cyan-accent);
+        border-color: var(--cyan-accent);
+        transition: all 0.3s ease;
+    }
+    .btn-outline-cyan:hover {
+        background: var(--cyan-accent);
+        color: #000;
+        box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+    }
+</style>
+
+<div class="container mt-5 pt-4 mb-5">
+    <div class="detail-card shadow-lg">
+        <div class="row g-0">
+            <div class="col-md-5 info-section text-white">
+                <h2 class="unna-regular mb-4 border-bottom border-secondary pb-3">
+                    <i class="fas fa-file-invoice me-2"></i>Butiran Rekod
+                </h2>
+                
+                <div class="mb-4">
+                    <label class="small d-block text-uppercase ls-1">Nama Si Mati</label>
+                    <p class="fs-4 fw-bold mb-0">{{ grave.deceased_name }}</p>
                 </div>
-                <div class="col-md-6">
-                    {% if grave.picture_url %}
-                    <div class="text-center mb-3">
-                        <img src="{{ grave.picture_url }}" alt="Gambar Kubur" class="img-fluid rounded border border-light shadow-sm" />
+
+                <div class="mb-4">
+                    <div class="col-6">
+                        <label class="small d-block text-uppercase ls-1">No. Liang</label>
+                        <p class="fs-5 fw-bold">{{ grave.stone_number }}</p>
                     </div>
-                    {% endif %}
-                    <p><strong>Maklumat Keluarga / Waris:</strong> {{ grave.family_details }}</p>
-                    <p><strong>contact:</strong> {{ grave.notes }}</p>
+                </div>
+
+                <div class="mb-4">
+                    <label class="small d-block text-uppercase ls-1">Tarikh Lahir / Kematian</label>
+                    <p class="mb-1"><span class="text-muted">Lahir:</span> {{ grave.date_of_birth or 'Tiada Maklumat' }}</p>
+                    <p class="mb-0"><span class="text-muted">Meninggal:</span> {{ grave.grave.date_of_death if grave.grave else '-' }}</p>
+                </div>
+
+                <div class="mb-4 p-3 rounded" style="background: rgba(255,255,255,0.05);">
+                    <label class="text-muted small d-block text-uppercase ls-1">Maklumat Waris</label>
+                    <p class="fw-bold mb-1"><i class="fas fa-user-tag text-cyan me-2"></i>{{ grave.heir_name }}</p>
+                    <p class="small text-light mb-0"><i class="fas fa-phone-alt text-cyan me-2"></i>{{ grave.heir_contact }}</p>
+                </div>
+
+                <div class="mt-auto">
+                    <a href="{{ url_for('home') }}" class="btn btn-outline-cyan w-100 py-2 fw-bold">
+                        <i class="fas fa-chevron-left me-2"></i>Kembali ke Carian
+                    </a>
                 </div>
             </div>
-            <div class="text-center mt-4">
-                <a href="{{ url_for('home') }}" class="btn btn-outline-light px-4">
-                    <i class="fas fa-arrow-left"></i> Kembali ke Laman Utama
-                </a>
+
+            <div class="col-md-7 p-4 bg-black d-flex flex-column justify-content-center border-start border-secondary">
+                <h5 class="text-center text-white mb-3 unna-regular fw-light">
+                    <i class="fas fa-crosshairs text-danger me-2"></i>Lokasi Liang Lahad
+                </h5>
+                
+                {% if grave.selected_plot and grave.coord_x is not none %}
+                <div class="map-display-container">
+                    <div class="map-wrapper-detail">
+                        <img id="detailMapImage" 
+                             src="{{ url_for('static', filename='images/pinned/' + (grave.selected_plot|default('fleft')) + '.jpg') }}" 
+                             alt="Peta Kawasan {{ grave.selected_plot }}">
+                        
+                        <div class="pin-detail" 
+                             style="--coord-x: {{ grave.coord_x }}%; --coord-y: {{ grave.coord_y }}%;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 p-3 bg-dark rounded border border-secondary d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-white small mb-0">Seksyen / Plot:</p>
+                        <strong class="text-cyan text-uppercase">{{ grave.selected_plot }}</strong>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-secondary">Verified Location</span>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center p-5 border border-secondary border-dashed rounded bg-dark">
+                    <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                    <p class="text-muted mb-0">Koordinat peta belum didaftarkan.</p>
+                    <small class="text-secondary">Sila hubungi admin untuk kemaskini lokasi.</small>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

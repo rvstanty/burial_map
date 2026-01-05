@@ -11,47 +11,70 @@
         padding: 15px;
     }
 
+    .map-zoom-container {
+        overflow: hidden; 
+        position: relative;
+        border: 1px solid #333;
+        border-radius: 8px;
+        background: #000;
+        touch-action: none; 
+    }
+
     .map-wrapper {
         position: relative;
         display: inline-block;
+        transition: transform 0.1s ease-out; 
+        transform-origin: 0 0;
         cursor: crosshair;
-        overflow: hidden;
-        border-radius: 8px;
-        background-color: #000;
     }
 
-    #mapImage, #viewMapImage {
+    #mapImage {
         max-width: 100%;
         height: auto;
         display: block;
         min-height: 200px;
+        user-select: none;
+        -webkit-user-drag: none;
     }
 
-    /* Rupa Pin */
-    .pin {
-        position: absolute;
-        width: 24px;
-        height: 24px;
-        background-color: #ff3e3e;
-        border: 3px solid white;
-        border-radius: 50% 50% 50% 0;
-        transform: rotate(-45deg);
-        margin-left: -12px; /* Center alignment */
-        margin-top: -24px;  /* Point alignment */
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        pointer-events: none;
-        display: none;
-        z-index: 10;
+    /* Kursor */
+    .can-pan { cursor: grab !important; }
+    .panning { cursor: grabbing !important; }
+
+    /* Layout Butang Zoom Kotak di Bawah Peta */
+    .zoom-controls-bottom {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 15px;
+        padding: 5px;
     }
 
-    .pin::after {
-        content: "";
-        width: 10px;
-        height: 10px;
-        margin: 4px 0 0 4px;
-        background: #fff;
-        position: absolute;
-        border-radius: 50%;
+    .btn-zoom-box {
+        width: 60px; /* Lebar kotak */
+        height: 45px; /* Tinggi kotak */
+        background: #00ffcc;
+        color: #000;
+        border: none;
+        border-radius: 4px; /* Sedikit rounded di bucu kotak */
+        font-weight: bold;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        transition: 0.2s;
+    }
+
+    .btn-zoom-box:active {
+        transform: scale(0.95);
+        background: #00cca3;
+    }
+
+    .btn-reset-box {
+        background: #ff3e3e;
+        color: white;
+        width: 80px; /* Reset dibuat lebih lebar sedikit */
     }
 
     .map-option {
@@ -71,16 +94,31 @@
 
     .text-cyan { color: #00ffcc; }
     
-    /* Animasi denyutan untuk pin yang sudah sedia ada */
-    .pin-saved {
-        display: block !important;
-        animation: pulsePin 1.5s infinite;
+    /* Pin Style */
+    .pin {
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        background-color: #ff3e3e;
+        border: 3px solid white;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        margin-left: -12px; 
+        margin-top: -24px;  
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        pointer-events: none;
+        display: none;
+        z-index: 10;
     }
 
-    @keyframes pulsePin {
-        0% { transform: rotate(-45deg) scale(1); }
-        50% { transform: rotate(-45deg) scale(1.2); }
-        100% { transform: rotate(-45deg) scale(1); }
+    .pin::after {
+        content: "";
+        width: 10px;
+        height: 10px;
+        margin: 4px 0 0 4px;
+        background: #fff;
+        position: absolute;
+        border-radius: 50%;
     }
 </style>
 
@@ -120,29 +158,40 @@
             
             <div class="row g-2 mb-3 text-center">
                 <div class="col-3">
-                    <small class="d-block mb-1" style="font-size: 10px;">F-KIRI</small>
-                    <img src="{{ url_for('static', filename='images/pinned/fleft.jpg') }}" class="img-fluid map-option active" onclick="changeMap(this, 'fleft')" alt="Hadapan Kiri">
+                    <p class="small">Hadapan Kiri</p>
+                    <img src="{{ url_for('static', filename='images/pinned/fleft.jpg') }}" class="img-fluid map-option active" onclick="changeMap(this, 'fleft')">
                 </div>
                 <div class="col-3">
-                    <small class="d-block mb-1" style="font-size: 10px;">F-KANAN</small>
-                    <img src="{{ url_for('static', filename='images/pinned/fright.jpg') }}" class="img-fluid map-option" onclick="changeMap(this, 'fright')" alt="Hadapan Kanan">
+                    <p class="small">Hadapan Kanan</p>
+                    <img src="{{ url_for('static', filename='images/pinned/fright.jpg') }}" class="img-fluid map-option" onclick="changeMap(this, 'fright')">
                 </div>
                 <div class="col-3">
-                    <small class="d-block mb-1" style="font-size: 10px;">BELAKANG</small>
-                    <img src="{{ url_for('static', filename='images/pinned/back.jpg') }}" class="img-fluid map-option" onclick="changeMap(this, 'back')" alt="Belakang">
+                    <p class="small">Belakang</p>
+                    <img src="{{ url_for('static', filename='images/pinned/back.jpg') }}" class="img-fluid map-option" onclick="changeMap(this, 'back')">
                 </div>
                 <div class="col-3">
-                    <small class="d-block mb-1" style="font-size: 10px;">TENGAH</small>
-                    <img src="{{ url_for('static', filename='images/pinned/mid.jpg') }}" class="img-fluid map-option" onclick="changeMap(this, 'mid')" alt="Tengah">
+                    <p class="small">Tengah</p>
+                    <img src="{{ url_for('static', filename='images/pinned/mid.jpg') }}" class="img-fluid map-option" onclick="changeMap(this, 'mid')">
                 </div>
             </div>
 
             <div class="text-center">
-                <div class="map-wrapper" id="mapWrapper">
-                    <img id="mapImage" src="{{ url_for('static', filename='images/pinned/fleft.jpg') }}" alt="Peta Lokasi">
-                    <div id="dropPin" class="pin"></div>
+                <div class="map-zoom-container mx-auto">
+                    <div class="map-wrapper" id="mapWrapper">
+                        <img id="mapImage" src="{{ url_for('static', filename='images/pinned/fleft.jpg') }}" draggable="false">
+                        <div id="dropPin" class="pin"></div>
+                    </div>
                 </div>
-                <p class="small text-muted mt-2"><i class="fas fa-info-circle"></i> Klik pada gambar untuk meletakkan kedudukan kubur.</p>
+
+                <div class="zoom-controls-bottom">
+                    <button type="button" class="btn-zoom-box" onclick="adjustZoom(0.5)"><i class="fas fa-plus"></i></button>
+                    <button type="button" class="btn-zoom-box" onclick="adjustZoom(-0.5)"><i class="fas fa-minus"></i></button>
+                    <button type="button" class="btn-zoom-box btn-reset-box" onclick="resetZoom()">RESET</button>
+                </div>
+                
+                <p class="small mt-3">
+                    <i class="fas fa-info-circle text-cyan"></i> Klik butang zoom untuk besarkan peta, geser untuk cari liang, dan klik pada peta untuk tanda pin.
+                </p>
             </div>
 
             <input type="hidden" id="selected_plot" name="selected_plot" value="fleft">
@@ -150,111 +199,92 @@
             <input type="hidden" id="coord_y" name="coord_y" value="">
         </div>
 
-        <button type="submit" class="btn btn-primary w-100 fw-bold">HANTAR PENDAFTARAN</button>
+        <button type="submit" class="btn btn-primary w-100 fw-bold py-3">HANTAR PENDAFTARAN</button>
     </form>
-
-    {% if records %}
-        <div class="table-responsive mb-5">
-            <h2 class="text-center mb-4">Rekod Sedia Ada</h2>
-            <table class="table table-striped table-dark table-hover align-middle mx-auto" style="max-width: 1000px;">
-                <thead>
-                    <tr class="text-cyan">
-                        <th>Nama Si Mati</th>
-                        <th>Batu Nisan</th>
-                        <th>Waris</th>
-                        <th class="text-center">Lokasi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for record in records %}
-                    <tr>
-                        <td>{{ record.deceased_name }}</td>
-                        <td>{{ record.stone_number }}</td>
-                        <td>{{ record.heir_name }}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-outline-info" 
-                                onclick="viewLocation('{{ record.selected_plot }}', '{{ record.coord_x }}', '{{ record.coord_y }}', '{{ record.deceased_name }}')">
-                                <i class="fas fa-map-marked-alt"></i> Lihat
-                            </button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-        <p class="text-center text-muted">Tiada rekod dijumpai.</p>
-    {% endif %}
-</div>
-
-<div class="modal fade" id="locationModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-white border-info">
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title h6">Lokasi: <span id="modalTitleName" class="text-cyan"></span></h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center p-4">
-                <div class="map-wrapper">
-                    <img id="viewMapImage" src="" alt="Peta Lokasi">
-                    <div id="viewPin" class="pin pin-saved"></div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script>
-    const mapWrapper = document.getElementById('mapWrapper');
-    const mapImage = document.getElementById('mapImage');
+    const wrapper = document.getElementById('mapWrapper');
+    const img = document.getElementById('mapImage');
     const pin = document.getElementById('dropPin');
     const inputX = document.getElementById('coord_x');
     const inputY = document.getElementById('coord_y');
-    const inputPlot = document.getElementById('selected_plot');
 
-    // Fungsi tukar gambar peta
-    function changeMap(element, plotName) {
-        mapImage.src = element.src;
-        inputPlot.value = plotName;
-        
-        // Sembunyi pin bila tukar kawasan (paksa user pin semula untuk ketepatan)
-        pin.style.display = 'none';
-        inputX.value = '';
-        inputY.value = '';
+    let scale = 1;
+    let isDragging = false;
+    let startX, startY, translateX = 0, translateY = 0;
+    let hasMoved = false;
 
-        document.querySelectorAll('.map-option').forEach(img => img.classList.remove('active'));
-        element.classList.add('active');
+    function adjustZoom(amount) {
+        scale += amount;
+        scale = Math.min(Math.max(1, scale), 4);
+        if (scale === 1) { translateX = 0; translateY = 0; }
+        updateTransform();
+        wrapper.classList.toggle('can-pan', scale > 1);
     }
 
-    // Fungsi Drop Pin
-    mapWrapper.addEventListener('click', function(e) {
-        const rect = mapImage.getBoundingClientRect();
-        
-        // Kira peratus (%) posisi
+    function resetZoom() {
+        scale = 1; translateX = 0; translateY = 0;
+        updateTransform();
+        wrapper.classList.remove('can-pan');
+    }
+
+    function updateTransform() {
+        wrapper.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    }
+
+    function startAction(e) {
+        if (scale <= 1) return;
+        isDragging = true;
+        hasMoved = false;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        startX = clientX - translateX;
+        startY = clientY - translateY;
+        if (!e.touches) wrapper.classList.add('panning');
+    }
+
+    function moveAction(e) {
+        if (!isDragging) return;
+        hasMoved = true;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        translateX = clientX - startX;
+        translateY = clientY - startY;
+        updateTransform();
+    }
+
+    function endAction() {
+        isDragging = false;
+        wrapper.classList.remove('panning');
+    }
+
+    wrapper.addEventListener('mousedown', startAction);
+    window.addEventListener('mousemove', moveAction);
+    window.addEventListener('mouseup', endAction);
+    wrapper.addEventListener('touchstart', startAction, { passive: false });
+    window.addEventListener('touchmove', moveAction, { passive: false });
+    window.addEventListener('touchend', endAction);
+
+    wrapper.addEventListener('click', (e) => {
+        if (hasMoved) return; 
+        const rect = img.getBoundingClientRect();
         const x = ((e.clientX - rect.left) / rect.width) * 100;
         const y = ((e.clientY - rect.top) / rect.height) * 100;
-
         pin.style.display = 'block';
         pin.style.left = x + '%';
         pin.style.top = y + '%';
-
         inputX.value = x.toFixed(2);
         inputY.value = y.toFixed(2);
     });
 
-    // Fungsi Papar Lokasi dalam Modal
-    function viewLocation(plot, x, y, name) {
-        document.getElementById('modalTitleName').innerText = name;
-        // Map plot name kembali ke path fail yang betul
-        const mapPath = `/static/images/pinned/${plot}.jpg`;
-        document.getElementById('viewMapImage').src = mapPath;
-        
-        const viewPin = document.getElementById('viewPin');
-        viewPin.style.left = x + '%';
-        viewPin.style.top = y + '%';
-        
-        var myModal = new bootstrap.Modal(document.getElementById('locationModal'));
-        myModal.show();
+    function changeMap(element, plotName) {
+        img.src = element.src;
+        document.getElementById('selected_plot').value = plotName;
+        resetZoom();
+        pin.style.display = 'none';
+        document.querySelectorAll('.map-option').forEach(i => i.classList.remove('active'));
+        element.classList.add('active');
     }
 </script>
 {% endblock %}

@@ -5,19 +5,24 @@ from sqlalchemy import or_
 
 app = Flask(__name__)
 
+# Konfigurasi Database
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(basedir, 'database.db')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SECRET_KEY'] = 'your_secret_key_here'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+# Fungsi untuk mencipta table jika belum wujud
 def create_tables():
     with app.app_context():
         db.create_all()
 
 create_tables()
+
+# --- ROUTES ---
 
 @app.route('/')
 def home():
@@ -27,7 +32,9 @@ def home():
     
     if query:
         like_pattern = f"%{query}%"
+        # Carian pada table Grave
         graves = Grave.query.filter(or_(Grave.name.ilike(like_pattern), Grave.section.ilike(like_pattern))).all()
+        # Carian pada table DaftarKematian (yang mengandungi data koordinat)
         daftar_kematian_records = DaftarKematian.query.filter(
             or_(
                 DaftarKematian.deceased_name.ilike(like_pattern),
@@ -46,7 +53,7 @@ def daftar_kematian():
         return redirect(url_for('login'))
 
     if request.method == 'POST':
-        # Data Maklumat
+        # Ambil Data dari Form
         deceased_name = request.form.get('deceased_name')
         stone_number = request.form.get('stone_number')
         date_of_birth = request.form.get('date_of_birth')
@@ -59,35 +66,34 @@ def daftar_kematian():
         coord_x = request.form.get('coord_x')
         coord_y = request.form.get('coord_y')
 
-        # Validasi asas
+        # Validasi
         if not all([deceased_name, stone_number, coord_x, coord_y]):
             flash('Sila isi maklumat dan tetapkan lokasi pada peta.', 'error')
             return redirect(url_for('daftar_kematian'))
 
         try:
             age_val = int(age_at_death)
-            # Simpan koordinat sebagai float
             cx = float(coord_x)
             cy = float(coord_y)
         except ValueError:
-            flash('Data teknikal tidak sah.', 'error')
+            flash('Data teknikal koordinat tidak sah.', 'error')
             return redirect(url_for('daftar_kematian'))
 
-        # Logik Grave (Jika belum ada)
+        # 1. Simpan/Update data dalam table Grave (Maklumat Induk)
         grave = Grave.query.filter_by(lot_number=stone_number).first()
         if not grave:
             grave = Grave(
                 name=deceased_name,
                 date_of_birth=date_of_birth,
                 lot_number=stone_number,
-                section=selected_plot.upper(), # Kita simpan plot sebagai seksyen
+                section=selected_plot.upper(),
                 family_details=heir_name,
                 notes=heir_contact
             )
             db.session.add(grave)
-            db.session.flush()
+            db.session.flush() # Ambil ID untuk kegunaan record bawah
 
-        # Cipta Rekod Kematian Baru dengan Koordinat Pin
+        # 2. Simpan dalam table DaftarKematian (Rekod Pendaftaran & Koordinat)
         new_record = DaftarKematian(
             grave_id=grave.id,
             deceased_name=deceased_name,
@@ -96,20 +102,29 @@ def daftar_kematian():
             age_at_death=age_val,
             heir_name=heir_name,
             heir_contact=heir_contact,
-            selected_plot=selected_plot, # Kolum baru
-            coord_x=cx,                  # Kolum baru
-            coord_y=cy                   # Kolum baru
+            selected_plot=selected_plot,
+            coord_x=cx,
+            coord_y=cy
         )
         
         db.session.add(new_record)
         db.session.commit()
-        flash('Rekod kematian dan lokasi berjaya didaftarkan.', 'success')
+        flash('Pendaftaran berjaya disimpan!', 'success')
         return redirect(url_for('daftar_kematian'))
 
     records = DaftarKematian.query.all()
     return render_template('daftar_kematian.html', records=records)
 
-# --- Route lain kekal sama seperti kod asal anda ---
+# --- ROUTE BARU UNTUK BUTIRAN KUBUR ---
+@app.route('/grave/<int:grave_id>')
+def grave_detail(grave_id):
+    # Kita ambil data dari DaftarKematian kerana table ini ada simpan koordinat pin
+    # Jika anda guna query.get(), ia cari berdasarkan Primary Key (id)
+    grave = DaftarKematian.query.get_or_404(grave_id)
+    return render_template('grave_detail.html', grave=grave)
+
+# --- AUTH ROUTES ---
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -135,7 +150,7 @@ def login():
             session['user_id'] = user.id
             session['user_email'] = user.email
             return redirect(url_for('home'))
-        flash('Log masuk gagal.', 'error')
+        flash('Log masuk gagal. Sila periksa email/password.', 'error')
     return render_template('login.html')
 
 @app.route('/logout')
@@ -143,6 +158,7 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
+# --- STATIK ROUTES ---
 @app.route('/organisasi')
 def organisasi(): return render_template('organisasi.html')
 
