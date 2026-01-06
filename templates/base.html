@@ -5,21 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}Burial Map{% endblock %}</title>
 
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-    <!-- Bootstrap 5 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
 
-    <!-- Font Awesome for Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
 
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icon.png') }}">
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Unna:wght@400;700family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Unna:wght@400;700&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
 
     <style> 
         html, body {
@@ -67,12 +63,35 @@
             color: #f1f1f1 !important;
         }
 
+        /* --- ANIMASI DROPDOWN (TAMBAHAN BARU) --- */
+        @media (min-width: 992px) {
+            .dropdown-menu {
+                display: block;
+                visibility: hidden;
+                opacity: 0;
+                transform: translateY(5px);
+                transition: all 0.3s ease-in-out;
+                pointer-events: none;
+            }
+            .dropdown:hover > .dropdown-menu,
+            .dropdown-menu.show {
+                visibility: visible;
+                opacity: 1;
+                transform: translateY(0);
+                pointer-events: auto;
+            }
+        }
+        /* ---------------------------------------- */
+
         .dropdown-menu {
             background-color: #2a2a2a;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .dropdown-item {
             color: #fff;
+            padding: 10px 20px;
+            transition: all 0.2s ease;
         }
 
         .dropdown-item:hover {
@@ -107,7 +126,7 @@
             font-optical-sizing: auto;
             font-weight: 600;
             font-style: normal;
-}
+        }
 
         input, button {
             font-size: 1.1rem;
@@ -140,12 +159,12 @@
         }
 
         footer {
-            background-color: #1a1a1a; /* Hitam yang sedikit cerah dari body */
+            background-color: #1a1a1a;
             color: #adb5bd;
             padding: 40px 0 20px 0;
             width: 100%;
             border-top: 1px solid rgba(0, 255, 204, 0.1);
-            margin-top: auto; /* Memastikan footer sentiasa di bawah */
+            margin-top: auto;
         }
 
         .footer-link {
@@ -245,10 +264,9 @@
 </head>
 <body>
 
-<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('home') }}">
             <img src="{{ url_for('static', filename='images/kam.png') }}" alt="Logo KAM" height="69"/>
             <img src="{{ url_for('static', filename='images/apm.png') }}" alt="Logo APM" height="69"/>
             <img src="{{ url_for('static', filename='images/FAT.png') }}" alt="Logo FAT" height="69"/>
@@ -258,21 +276,19 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Navbar Links -->
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ms-auto">
 
                 {% if session.get('user_email') %}
                     <li class="nav-item">
-                        <li:><p class="nav-link">Assalamualaikum, <b>{{ session.get('user_email') }}</b>!</p></li>
+                        <span class="nav-link">Assalamualaikum, <b>{{ session.get('user_email') }}</b>!</span>
                     </li>
                 {% endif %}
 
                 <li class="nav-item">
-                    <li><a class="nav-link" href="{{ url_for('home') }}">Utama</a></li>
+                    <a class="nav-link" href="{{ url_for('home') }}">Utama</a>
                 </li>
 
-                <!-- Dropdown Navigasi -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="naviDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Navigasi
@@ -284,7 +300,6 @@
                     </ul>
                 </li>
 
-                <!-- Dropdown Pautan Pantas -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="pautanDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Pautan Pantas
@@ -302,12 +317,12 @@
                         </li>
                         <li>
                             <a class="dropdown-item" href="https://www.facebook.com/share/1K3je8vtWb/?mibextid=qi2Omg" target="_blank">
-                                Badan Khairat Felda Air Tawar 1 (Facebook)
+                                Badan Khairat (Facebook)
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="https://www.tiktok.com/@badan.khairat.air?_t=ZS-8xCMEKClP1h&_r=1" target="_blank">
-                                Badan Khairat Felda Air Tawar 1 (TikTok)
+                                Badan Khairat (TikTok)
                             </a>
                         </li>
                     </ul>
@@ -331,60 +346,56 @@
     </div>
 </nav>
 
-<!-- Main Content -->
 <div class="main-content">
     {% block content %}{% endblock %}
 </div>
 
-<!-- Footer -->
-    <footer>
-        <div class="container-fluid px-4">
-            <div class="row align-items-center">
-                
-                <div class="col-md-4 text-center text-md-start mb-4 mb-md-0">
-                    <p class="copyright-text mb-1">
-                        <b>Copyright &copy; 2025</b>
-                    </p>
-                    <p class="small mb-0 text-white-50">First Axe Team Civil Defence Auxiliary</p>
-                </div>
-
-                <div class="col-md-4 text-center mb-4 mb-md-0">
-                    <p class="mb-2">
-                        <a href="{{ url_for('privasi') }}" class="footer-link">Dasar Privasi</a> 
-                        <span class="mx-2 text-secondary">|</span> 
-                        <a href="{{ url_for('terma') }}" class="footer-link">Terma Perkhidmatan</a>
-                    </p>
-                    <p class="small mb-0">
-                        Aduan : 
-                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=firstaxeteam@gmail.com" target="_blank" class="email-link">
-                            firstaxeteam@gmail.com
-                        </a>
-                    </p>
-                </div>
-
-                <div class="col-md-4 text-center text-md-end">
-                    <div class="d-flex justify-content-center justify-content-md-end flex-wrap gap-2">
-                        <img src="{{ url_for('static', filename='images/apm.png') }}" alt="APM" class="footer-logo"/> 
-                        <img src="{{ url_for('static', filename='images/madani.png') }}" alt="Madani" class="footer-logo"/> 
-                        <img src="{{ url_for('static', filename='images/kam.png') }}" alt="KAM" class="footer-logo"/> 
-                        <img src="{{ url_for('static', filename='images/FAT.png') }}" alt="FAT" class="footer-logo"/>
-                    </div>
-                </div>
-
+<footer>
+    <div class="container-fluid px-4">
+        <div class="row align-items-center">
+            
+            <div class="col-md-4 text-center text-md-start mb-4 mb-md-0">
+                <p class="copyright-text mb-1">
+                    <b>Copyright &copy; 2025</b>
+                </p>
+                <p class="small mb-0 text-white-50">First Axe Team Civil Defence Auxiliary</p>
             </div>
 
-            <hr class="border-secondary mt-4 mb-3" style="opacity: 0.1;">
-            
-            <div class="text-center">
-                <p style="font-size: 0.7rem;" class="text-secondary mb-0 text-uppercase">
-                    Portal Pemetaan Perkuburan Felda Air Tawar 1
+            <div class="col-md-4 text-center mb-4 mb-md-0">
+                <p class="mb-2">
+                    <a href="{{ url_for('privasi') }}" class="footer-link">Dasar Privasi</a> 
+                    <span class="mx-2 text-secondary">|</span> 
+                    <a href="{{ url_for('terma') }}" class="footer-link">Terma Perkhidmatan</a>
+                </p>
+                <p class="small mb-0">
+                    Aduan : 
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=firstaxeteam@gmail.com" target="_blank" class="email-link">
+                        firstaxeteam@gmail.com
+                    </a>
                 </p>
             </div>
+
+            <div class="col-md-4 text-center text-md-end">
+                <div class="d-flex justify-content-center justify-content-md-end flex-wrap gap-2">
+                    <img src="{{ url_for('static', filename='images/apm.png') }}" alt="APM" class="footer-logo"/> 
+                    <img src="{{ url_for('static', filename='images/madani.png') }}" alt="Madani" class="footer-logo"/> 
+                    <img src="{{ url_for('static', filename='images/kam.png') }}" alt="KAM" class="footer-logo"/> 
+                    <img src="{{ url_for('static', filename='images/FAT.png') }}" alt="FAT" class="footer-logo"/>
+                </div>
+            </div>
+
         </div>
-    </footer>
 
+        <hr class="border-secondary mt-4 mb-3" style="opacity: 0.1;">
+        
+        <div class="text-center">
+            <p style="font-size: 0.7rem;" class="text-secondary mb-0 text-uppercase">
+                Portal Pemetaan Perkuburan Felda Air Tawar 1
+            </p>
+        </div>
+    </div>
+</footer>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 </body>

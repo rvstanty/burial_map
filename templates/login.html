@@ -3,21 +3,21 @@
 {% block title %}Log Masuk{% endblock %}
 
 {% block content %}
-<hr style="border-color: black;">
-<hr style="border-color: black;">
-<hr style="border-color: black;">
-
 <div class="container-login">
-    <h1 class="text-center text-light mb-4">Log Masuk</h1>
-    <p class="text-center text-light mb-4">Sila log masuk akaun anda untuk pendaftaran kematian.</p>
+    <hr class="mx-auto" style="width: 100px; border-top: 2px solid #121212; opacity: 1;">
+    <div class="text-center mb-4">
+        <hr class="mx-auto" style="width: 100px; border-top: 2px solid #121212; opacity: 1;">
+        <h1 class="unna-regular text-light">Log Masuk</h1>
+        <p class="text-white-50">Sila log masuk akaun anda untuk akses penuh portal.</p>
+        <hr class="mx-auto" style="width: 100px; border-top: 2px solid #00ffcc; opacity: 1;">
+    </div>
 
-    <!-- NOTIFIKASI / MESEJ FLASH -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="mb-4">
                 {% for category, message in messages %}
                     <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show shadow" role="alert">
-                        <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-triangle' }}"></i>
+                        <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-triangle' }} me-2"></i>
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
                     </div>
@@ -25,24 +25,94 @@
             </div>
         {% endif %}
     {% endwith %}
+    <form method="post" action="{{ url_for('login') }}" class="shadow-lg p-4 rounded-4" style="background-color: #2a2a2a; max-width: 450px; margin: auto;">
+        
+        <div class="mb-3">
+            <label for="email" class="form-label text-light small fw-bold">Alamat Emel</label>
+            <div class="input-group custom-input-group">
+                <span class="input-group-text border-0 bg-transparent text-white-50">
+                    <i class="fas fa-envelope"></i>
+                </span>
+                <input type="email" class="form-control bg-transparent text-white border-0" id="email" name="email" placeholder="contoh@emel.com" required>
+            </div>
+        </div>
 
-    <!-- BORANG LOG MASUK -->
-    <form method="post" action="{{ url_for('login') }}">
-        <div class="mb-3">
-            <label for="email" class="form-label">Alamat Emel</label>
-            <input type="email" class="form-control" id="email" name="email" required>
+        <div class="mb-4">
+            <label for="password" class="form-label text-light small fw-bold">Kata Laluan</label>
+            <div class="input-group custom-input-group">
+                <span class="input-group-text border-0 bg-transparent text-white-50">
+                    <i class="fas fa-lock"></i>
+                </span>
+                <input type="password" class="form-control bg-transparent text-white border-0" id="password" name="password" placeholder="Masukkan kata laluan" required>
+                <button class="btn border-0 text-white-50" type="button" id="togglePassword">
+                    <i class="fas fa-eye" id="eyeIcon"></i>
+                </button>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Kata Laluan</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <button type="submit" class="btn btn-primary w-100">Log Masuk</button>
+
+        <button type="submit" class="btn btn-cyan btn-lg w-100 shadow-sm fw-bold text-dark py-3" style="background-color: #00ffcc; border-radius: 12px; border: none;">
+            LOG MASUK <i class="fas fa-sign-in-alt ms-2"></i>
+        </button>
     </form>
 
-    <!-- jika belum daftar -->
-    <div class="text-center mt-3">
-        <p class="text-light">Adakah anda pengguna baru?<br>
-            <a href="{{ url_for('register') }}" class="text-decoration-none" style="color:#00ffcc;">Klik di sini</a> untuk mendaftar</p>
+    <div class="text-center mt-4">
+        <p class="text-light mb-0">Adakah anda pengguna baru?</p>
+        <a href="{{ url_for('register') }}" class="text-decoration-none fw-bold" style="color:#00ffcc;">
+            Daftar Akaun Di Sini <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+        <hr class="mx-auto" style="width: 100px; border-top: 2px solid #121212; opacity: 1;">
     </div>
 </div>
+
+<style>
+    .custom-input-group {
+        background-color: #1c1c1c;
+        border: 1px solid #444;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        transition: border-color 0.3s ease;
+    }
+
+    .custom-input-group:focus-within {
+        border-color: #00ffcc;
+        box-shadow: 0 0 8px rgba(0, 255, 204, 0.2);
+    }
+
+    .custom-input-group .form-control:focus {
+        background-color: transparent;
+    }
+
+    .custom-input-group .input-group-text {
+        padding-left: 15px;
+        padding-right: 10px;
+    }
+
+    .custom-input-group input {
+        height: 50px;
+    }
+
+    .custom-input-group input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: 0.5px;
+    }
+
+    #togglePassword:hover {
+        color: #fff !important;
+    }
+</style>
+
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+    const eyeIcon = document.querySelector('#eyeIcon');
+
+    togglePassword.addEventListener('click', function () {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        eyeIcon.classList.toggle('fa-eye');
+        eyeIcon.classList.toggle('fa-eye-slash');
+    });
+</script>
 {% endblock %}

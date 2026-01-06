@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from models import db, User, Grave, DaftarKematian
 import os
 from sqlalchemy import or_
+from datetime import datetime, timedelta
+from functools import wraps  # Tambahan baru untuk security
 
 app = Flask(__name__)
 
@@ -15,26 +17,28 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-# Fungsi untuk mencipta table jika belum wujud
-def create_tables():
-    with app.app_context():
-        db.create_all()
-
-create_tables()
+# --- SECURITY CHECK DECORATOR ---
+# Fungsi ini akan digunakan untuk melindungi route secara automatik
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('user_id'):
+            flash('Sila log masuk untuk mengakses halaman ini.', 'error')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # --- ROUTES ---
 
 @app.route('/')
 def home():
     query = request.args.get('query', '').strip()
-    graves = []
+    graves_records = []
     daftar_kematian_records = []
     
     if query:
         like_pattern = f"%{query}%"
-        # Carian pada table Grave
-        graves = Grave.query.filter(or_(Grave.name.ilike(like_pattern), Grave.section.ilike(like_pattern))).all()
-        # Carian pada table DaftarKematian (yang mengandungi data koordinat)
+        graves_records = Grave.query.filter(or_(Grave.name.ilike(like_pattern), Grave.section.ilike(like_pattern))).all()
         daftar_kematian_records = DaftarKematian.query.filter(
             or_(
                 DaftarKematian.deceased_name.ilike(like_pattern),
@@ -43,30 +47,50 @@ def home():
             )
         ).all()
     
-    return render_template('home.html', graves=graves, daftar_kematian_records=daftar_kematian_records, query=query)
+    return render_template('home.html', graves=graves_records, daftar_kematian_records=daftar_kematian_records, query=query)
 
+# --- PROTECTED ROUTE: SENARAI SEMUA REKOD ---
+@app.route('/graves')
+@login_required  # Hanya user berdaftar boleh buka URL ini
+def graves():
+    all_records = DaftarKematian.query.order_by(DaftarKematian.id.desc()).all()
+    current_time = datetime.utcnow()
+    
+    graves_list = []
+    for record in all_records:
+        is_new = False
+        # Logik: Rekod dalam masa 7 hari dianggap baru
+        if hasattr(record, 'created_at') and record.created_at:
+            if current_time - record.created_at < timedelta(days=7):
+                is_new = True
+        
+        graves_list.append({
+            'id': record.id,
+            'nama_simati': record.deceased_name,
+            'ic_simati': record.stone_number,
+            'tarikh_meninggal': record.date_of_birth,
+            'koordinat': f"{record.coord_x}, {record.coord_y}",
+            'nama_waris': record.heir_name,
+            'is_new': is_new
+        })
+        
+    return render_template('graves.html', graves=graves_list)
+
+# --- PROTECTED ROUTE: DAFTAR KEMATIAN ---
 @app.route('/daftar_kematian', methods=['GET', 'POST'])
+@login_required  # Hanya user berdaftar boleh buka URL ini
 def daftar_kematian():
-    user_id = session.get('user_id')
-    if not user_id:
-        flash('Sila log masuk untuk mengakses halaman ini.', 'error')
-        return redirect(url_for('login'))
-
     if request.method == 'POST':
-        # Ambil Data dari Form
         deceased_name = request.form.get('deceased_name')
         stone_number = request.form.get('stone_number')
         date_of_birth = request.form.get('date_of_birth')
         age_at_death = request.form.get('age_at_death')
         heir_name = request.form.get('heir_name')
         heir_contact = request.form.get('heir_contact')
-        
-        # Data Lokasi (Pin)
         selected_plot = request.form.get('selected_plot')
         coord_x = request.form.get('coord_x')
         coord_y = request.form.get('coord_y')
 
-        # Validasi
         if not all([deceased_name, stone_number, coord_x, coord_y]):
             flash('Sila isi maklumat dan tetapkan lokasi pada peta.', 'error')
             return redirect(url_for('daftar_kematian'))
@@ -75,25 +99,23 @@ def daftar_kematian():
             age_val = int(age_at_death)
             cx = float(coord_x)
             cy = float(coord_y)
-        except ValueError:
-            flash('Data teknikal koordinat tidak sah.', 'error')
+        except (ValueError, TypeError):
+            flash('Data teknikal tidak sah.', 'error')
             return redirect(url_for('daftar_kematian'))
 
-        # 1. Simpan/Update data dalam table Grave (Maklumat Induk)
         grave = Grave.query.filter_by(lot_number=stone_number).first()
         if not grave:
             grave = Grave(
                 name=deceased_name,
                 date_of_birth=date_of_birth,
                 lot_number=stone_number,
-                section=selected_plot.upper(),
+                section=selected_plot.upper() if selected_plot else "UNKNOWN",
                 family_details=heir_name,
                 notes=heir_contact
             )
             db.session.add(grave)
-            db.session.flush() # Ambil ID untuk kegunaan record bawah
+            db.session.flush()
 
-        # 2. Simpan dalam table DaftarKematian (Rekod Pendaftaran & Koordinat)
         new_record = DaftarKematian(
             grave_id=grave.id,
             deceased_name=deceased_name,
@@ -110,16 +132,15 @@ def daftar_kematian():
         db.session.add(new_record)
         db.session.commit()
         flash('Pendaftaran berjaya disimpan!', 'success')
-        return redirect(url_for('daftar_kematian'))
+        return redirect(url_for('graves'))
 
     records = DaftarKematian.query.all()
     return render_template('daftar_kematian.html', records=records)
 
-# --- ROUTE BARU UNTUK BUTIRAN KUBUR ---
+# --- PROTECTED ROUTE: DETAIL KUBUR ---
 @app.route('/grave/<int:grave_id>')
-def grave_detail(grave_id):
-    # Kita ambil data dari DaftarKematian kerana table ini ada simpan koordinat pin
-    # Jika anda guna query.get(), ia cari berdasarkan Primary Key (id)
+@login_required
+def detail_grave(grave_id):
     grave = DaftarKematian.query.get_or_404(grave_id)
     return render_template('grave_detail.html', grave=grave)
 
@@ -137,6 +158,7 @@ def register():
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
+        flash('Pendaftaran berjaya! Sila log masuk.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html')
 
@@ -156,9 +178,10 @@ def login():
 @app.route('/logout')
 def logout():
     session.clear()
+    flash('Anda telah log keluar.', 'info')
     return redirect(url_for('home'))
 
-# --- STATIK ROUTES ---
+# --- STATIK ROUTES (Boleh diakses semua orang) ---
 @app.route('/organisasi')
 def organisasi(): return render_template('organisasi.html')
 
@@ -172,4 +195,6 @@ def privasi(): return render_template('privasi.html')
 def terma(): return render_template('terma.html')
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True, host='0.0.0.0', port=5000)

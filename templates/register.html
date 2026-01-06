@@ -3,40 +3,131 @@
 {% block title %}Daftar Pengguna{% endblock %}
 
 {% block content %}
-<div class="container mt-5 pt-5">
-    <h1 class="text-center text-light mb-4">Daftar Akaun Baru</h1>
-    <p class="text-center text-light mb-4">Pengesahan untuk daftar kematian baru</p>
+<div class="container-login">
+    <hr class="mx-auto" style="width: 100px; border-top: 2px solid #121212; opacity: 1;">
+    <div class="text-center mb-4">
+        <hr class="mx-auto" style="width: 100px; border-top: 2px solid #121212; opacity: 1;">
+        <h1 class="unna-regular text-light">Daftar Akaun Baru</h1>
+        <p class="text-white-50">Sila daftar akaun untuk akses pendaftaran kematian.</p>
+        <hr class="mx-auto" style="width: 100px; border-top: 2px solid #00ffcc; opacity: 1;">
+    </div>
 
-    <!-- Notifikasi Flash Message -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="mb-4">
                 {% for category, message in messages %}
                     <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show shadow" role="alert">
-                        <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-triangle' }}"></i>
+                        <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-triangle' }} me-2"></i>
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
                     </div>
                 {% endfor %}
             </div>
         {% endif %}
     {% endwith %}
 
-    <form method="post" action="{{ url_for('register') }}" class="mx-auto bg-dark text-light p-4" style="max-width: 400px; animation: fadeIn 0.6s ease-out;">
+    <form method="post" action="{{ url_for('register') }}" class="shadow-lg p-4 rounded-4" style="background-color: #2a2a2a; max-width: 450px; margin: auto;">
+        
         <div class="mb-3">
-            <label for="email" class="form-label">Alamat Email</label>
-            <input type="email" class="form-control" id="email" name="email" required>
+            <label for="email" class="form-label text-light small fw-bold">Alamat Emel</label>
+            <div class="input-group custom-input-group">
+                <span class="input-group-text border-0 bg-transparent text-white-50">
+                    <i class="fas fa-envelope"></i>
+                </span>
+                <input type="email" class="form-control bg-transparent text-white border-0" id="email" name="email" placeholder="contoh@emel.com" required>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Kata Laluan</label>
-            <input type="password" class="form-control" id="password" name="password" required>
+
+        <div class="mb-4">
+            <label for="password" class="form-label text-light small fw-bold">Kata Laluan</label>
+            <div class="input-group custom-input-group">
+                <span class="input-group-text border-0 bg-transparent text-white-50">
+                    <i class="fas fa-lock"></i>
+                </span>
+                <input type="password" class="form-control bg-transparent text-white border-0" id="password" name="password" placeholder="Cipta kata laluan anda" required>
+                <button class="btn border-0 text-white-50" type="button" id="togglePassword">
+                    <i class="fas fa-eye" id="eyeIcon"></i>
+                </button>
+            </div>
+            <small class="text-white-50" style="font-size: 0.75rem;">Pastikan kata laluan anda sukar untuk diteka.</small>
         </div>
-        <button type="submit" class="btn btn-primary w-100">Daftar Sekarang</button>
+
+        <button type="submit" class="btn btn-cyan btn-lg w-100 shadow-sm fw-bold text-dark py-3" style="background-color: #00ffcc; border-radius: 12px; border: none;">
+            DAFTAR SEKARANG <i class="fas fa-user-plus ms-2"></i>
+        </button>
     </form>
 
     <div class="text-center mt-4">
-        <p class="text-light">Sudah ada akaun? <br>
-        <a href="{{ url_for('login') }}" class="text-decoration-none" style="color:#00ffcc;">Klik di sini </a>untuk log masuk</p>
+        <p class="text-light mb-0">Sudah mempunyai akaun?</p>
+        <a href="{{ url_for('login') }}" class="text-decoration-none fw-bold" style="color:#00ffcc;">
+            Log Masuk Di Sini <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+        <hr class="mx-auto" style="width: 100px; border-top: 2px solid #121212; opacity: 1;">
     </div>
 </div>
+
+<style>
+    /* Styling yang selaras dengan login.html */
+    .custom-input-group {
+        background-color: #1c1c1c; 
+        border: 1px solid #444;    
+        border-radius: 12px;       
+        display: flex;
+        align-items: center;
+        transition: border-color 0.3s ease;
+    }
+
+    .custom-input-group:focus-within {
+        border-color: #00ffcc;
+        box-shadow: 0 0 8px rgba(0, 255, 204, 0.2);
+    }
+
+    .custom-input-group .form-control:focus {
+        box-shadow: none; 
+        background-color: transparent;
+    }
+
+    .custom-input-group .input-group-text {
+        padding-left: 15px;
+        padding-right: 10px;
+    }
+
+    .custom-input-group input {
+        height: 50px; 
+    }
+
+    .custom-input-group input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: 0.5px;
+    }
+
+    #togglePassword:hover {
+        color: #fff !important;
+    }
+
+    /* Animasi masuk */
+    .container-login {
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+    // Skrip untuk feature intai password
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+    const eyeIcon = document.querySelector('#eyeIcon');
+
+    togglePassword.addEventListener('click', function () {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        eyeIcon.classList.toggle('fa-eye');
+        eyeIcon.classList.toggle('fa-eye-slash');
+    });
+</script>
 {% endblock %}

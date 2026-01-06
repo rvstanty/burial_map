@@ -5,8 +5,6 @@
 {% block content %}
 <style>
     .map-selection-container {
-        background: #1c1c1c;
-        border: 2px dashed #00ffcc;
         border-radius: 10px;
         padding: 15px;
     }
@@ -123,9 +121,10 @@
 </style>
 
 <div class="container mt-5 pt-5">
-    <h1 class="text-center mb-4">Daftar Kematian</h1>
+    <h1 class="text-center mb-4 unna-regular">Daftar Kematian</h1>
 
     <form method="post" action="{{ url_for('daftar_kematian') }}" class="mx-auto mb-5 px-3 py-4 bg-dark text-white rounded shadow-lg" style="max-width: 600px;">
+        <label class="form-label d-block text-center fw-bold text-cyan">Langkah 1: Masukkan Butiran Si Mati</label>
         <div class="mb-3">
             <label for="deceased_name" class="form-label">Nama Si Mati</label>
             <input type="text" class="form-control" id="deceased_name" name="deceased_name" required>

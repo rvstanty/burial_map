@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Senarai Rekod Liang - Burial Map{% endblock %}
+
+{% block content %}
+<div class="container mb-5">
+    <div class="text-center mb-5">
+        <hr class="mx-auto" style="width: 100px; border-top: 2px solid #00ffcc; opacity: 1;">
+        <h2 class="unna-regular text-uppercase" style="color: #00ffcc; letter-spacing: 2px;">Senarai Rekod Liang Lahad</h2>
+        <p class="text-white-50">Memaparkan semua rekod pendaftaran kubur di Felda Air Tawar 1</p>
+        <hr class="mx-auto" style="width: 100px; border-top: 2px solid #00ffcc; opacity: 1;">
+    </div>
+
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-8">
+            <div class="input-group">
+                <input type="text" id="graveSearch" class="form-control border-secondary" placeholder="Cari nama si mati atau no. liang...">
+                <span class="input-group-text bg-secondary text-white border-secondary"><i class="fas fa-search"></i></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% if graves %}
+            {% for grave in graves %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm border-0" style="background-color: #1c1c1c; transition: transform 0.3s ease;">
+                    <div class="card-body p-4 position-relative">
+                        
+                        {# Logik: Jika tarikh_daftar adalah dalam 7 hari kebelakangan #}
+                        {% if grave.is_new %}
+                        <span class="badge position-absolute top-0 end-0 m-3" style="background-color: #00ffcc; color: #121212; font-weight: 600; padding: 5px 12px; border-radius: 20px; box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);">
+                            <i class="fas fa-star me-1"></i> BAHARU
+                        </span>
+                        {% endif %}
+
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: rgba(0, 255, 204, 0.1); color: #00ffcc;">
+                                <i class="fas fa-monument fa-lg"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h5 class="josefin-sans-weight mb-0 text-white">{{ grave.nama_simati }}</h5>
+                                <small class="text-white-50">No. KP: {{ grave.ic_simati }}</small>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top border-secondary">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <p class="small mb-1 text-white-50"><i class="far fa-calendar-alt me-2"></i>Tarikh Meninggal</p>
+                                    <p class="small text-white fw-bold">{{ grave.tarikh_meninggal }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <p class="small mb-1 text-white-50"><i class="fas fa-map-marker-alt me-2"></i>Koordinat Liang</p>
+                                    <p class="small text-white fw-bold">{{ grave.koordinat }}</p>
+                                </div>
+                                <div class="col-12">
+                                    <p class="small mb-1 text-white-50"><i class="fas fa-user-shield me-2"></i>Pendaftar/Waris</p>
+                                    <p class="small text-white">{{ grave.nama_waris }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-4 px-4 text-center">
+                        <a href="{{ url_for('detail_grave', grave_id=grave.id) }}" class="btn btn-sm btn-outline-light w-100 py-2" style="border-radius: 8px;">
+                            Lihat Lokasi Map <i class="fas fa-chevron-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <div class="opacity-25 mb-3">
+                    <i class="fas fa-folder-open fa-5x"></i>
+                </div>
+                <h4 class="text-white-50">Tiada rekod liang ditemui dalam pangkalan data.</h4>
+                <a href="{{ url_for('login') }}" class="btn btn-success mt-3 px-4">Daftar Rekod Baru</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    /* Hover effect pada kad */
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 30px rgba(0, 255, 204, 0.15) !important;
+        background-color: #252525 !important;
+    }
+    
+    /* Input Search Styling */
+    #graveSearch:focus {
+        border-color: #00ffcc;
+        box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+    }
+
+    .badge {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+</style>
+
+<script>
+    // Script ringkas untuk fungsi carian real-time
+    document.getElementById('graveSearch').addEventListener('keyup', function() {
+        let filter = this.value.toLowerCase();
+        let cards = document.querySelectorAll('.col-md-6');
+        
+        cards.forEach(function(card) {
+            let name = card.querySelector('h5').innerText.toLowerCase();
+            let ic = card.querySelector('.text-white-50').innerText.toLowerCase();
+            if(name.includes(filter) || ic.includes(filter)) {
+                card.style.display = "";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    });
+</script>
+{% endblock %}
