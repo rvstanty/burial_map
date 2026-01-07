@@ -3,7 +3,7 @@ from models import db, User, Grave, DaftarKematian
 import os
 from sqlalchemy import or_
 from datetime import datetime, timedelta
-from functools import wraps  # Tambahan baru untuk security
+from functools import wraps 
 
 app = Flask(__name__)
 
@@ -18,7 +18,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # --- SECURITY CHECK DECORATOR ---
-# Fungsi ini akan digunakan untuk melindungi route secara automatik
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -49,9 +48,9 @@ def home():
     
     return render_template('home.html', graves=graves_records, daftar_kematian_records=daftar_kematian_records, query=query)
 
-# --- PROTECTED ROUTE: SENARAI SEMUA REKOD ---
+# --- SENARAI SEMUA REKOD ---
 @app.route('/graves')
-@login_required  # Hanya user berdaftar boleh buka URL ini
+@login_required 
 def graves():
     all_records = DaftarKematian.query.order_by(DaftarKematian.id.desc()).all()
     current_time = datetime.utcnow()
@@ -59,7 +58,6 @@ def graves():
     graves_list = []
     for record in all_records:
         is_new = False
-        # Logik: Rekod dalam masa 7 hari dianggap baru
         if hasattr(record, 'created_at') and record.created_at:
             if current_time - record.created_at < timedelta(days=7):
                 is_new = True
@@ -76,9 +74,9 @@ def graves():
         
     return render_template('graves.html', graves=graves_list)
 
-# --- PROTECTED ROUTE: DAFTAR KEMATIAN ---
+# --- DAFTAR KEMATIAN ---
 @app.route('/daftar_kematian', methods=['GET', 'POST'])
-@login_required  # Hanya user berdaftar boleh buka URL ini
+@login_required 
 def daftar_kematian():
     if request.method == 'POST':
         deceased_name = request.form.get('deceased_name')
@@ -137,10 +135,11 @@ def daftar_kematian():
     records = DaftarKematian.query.all()
     return render_template('daftar_kematian.html', records=records)
 
-# --- PROTECTED ROUTE: DETAIL KUBUR ---
+# --- DETAIL KUBUR (Dibaiki untuk ralat BuildError) ---
 @app.route('/grave/<int:grave_id>')
 @login_required
-def detail_grave(grave_id):
+def grave_detail(grave_id):
+    # Mengambil data berdasarkan ID unik pendaftaran
     grave = DaftarKematian.query.get_or_404(grave_id)
     return render_template('grave_detail.html', grave=grave)
 
@@ -181,7 +180,7 @@ def logout():
     flash('Anda telah log keluar.', 'info')
     return redirect(url_for('home'))
 
-# --- STATIK ROUTES (Boleh diakses semua orang) ---
+# --- STATIK ROUTES ---
 @app.route('/organisasi')
 def organisasi(): return render_template('organisasi.html')
 
