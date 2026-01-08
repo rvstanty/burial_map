@@ -48,17 +48,19 @@ def home():
     
     return render_template('home.html', graves=graves_records, daftar_kematian_records=daftar_kematian_records, query=query)
 
-# --- SENARAI SEMUA REKOD ---
 @app.route('/graves')
 @login_required 
 def graves():
+    # Mengambil semua rekod, susun yang terbaru di atas
     all_records = DaftarKematian.query.order_by(DaftarKematian.id.desc()).all()
     current_time = datetime.utcnow()
     
     graves_list = []
     for record in all_records:
         is_new = False
-        if hasattr(record, 'created_at') and record.created_at:
+        
+        # Semak jika rekod didaftarkan dalam masa 7 hari kebelakangan
+        if record.created_at:
             if current_time - record.created_at < timedelta(days=7):
                 is_new = True
         
@@ -139,9 +141,9 @@ def daftar_kematian():
 @app.route('/grave/<int:grave_id>')
 @login_required
 def grave_detail(grave_id):
-    # Mengambil data berdasarkan ID unik pendaftaran
-    grave = DaftarKematian.query.get_or_404(grave_id)
-    return render_template('grave_detail.html', grave=grave)
+    # Mengambil data berdasarkan ID pendaftaran
+    record = DaftarKematian.query.get_or_404(grave_id)
+    return render_template('grave_detail.html', grave=record)
 
 # --- AUTH ROUTES ---
 

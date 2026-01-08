@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -37,15 +38,15 @@ class DaftarKematian(db.Model):
     stone_number = db.Column(db.String(50), nullable=False)
     date_of_birth = db.Column(db.String(50), nullable=False)
     age_at_death = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Maklumat Waris
     heir_name = db.Column(db.String(100), nullable=False)
     heir_contact = db.Column(db.Text, nullable=False) # Diubah ke Text supaya alamat panjang muat
 
-    # --- Data Lokasi Drop Pin (PENTING) ---
+    # Data Lokasi Drop Pin (PENTING)
     selected_plot = db.Column(db.String(50), default='fleft') 
     coord_x = db.Column(db.Float, default=0.0) 
     coord_y = db.Column(db.Float, default=0.0) 
-    # -----------------------------------
 
     grave = db.relationship('Grave', back_populates='daftar_kematian')
