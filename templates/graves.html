@@ -5,17 +5,16 @@
 {% block content %}
 <div class="container mb-5">
     <div class="text-center mb-5">
-        <hr class="mx-auto" style="width: 100px; border-top: 2px solid #00ffcc; opacity: 1;">
+        <hr class="mx-auto" style="width: 100px; border-top: 30px solid #00ffcc; opacity: 0;">
         <h2 class="unna-regular text-uppercase" style="color: #00ffcc; letter-spacing: 2px;">Senarai Rekod Liang Lahad</h2>
         <p class="text-white-50">Memaparkan semua rekod pendaftaran kubur di Felda Air Tawar 1</p>
-        <hr class="mx-auto" style="width: 100px; border-top: 2px solid #00ffcc; opacity: 1;">
     </div>
 
-    <div class="row justify-content-center mb-4">
-        <div class="col-md-8">
-            <div class="input-group">
-                <input type="text" id="graveSearch" class="form-control border-secondary" placeholder="Cari nama si mati atau no. liang...">
-                <span class="input-group-text bg-secondary text-white border-secondary"><i class="fas fa-search"></i></span>
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8 col-lg-6">
+            <div class="search-container position-relative">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="graveSearch" class="form-control search-input" placeholder="Cari nama arwah atau no. liang...">
             </div>
         </div>
     </div>
@@ -30,7 +29,7 @@
                         {# Logik: Jika tarikh_daftar adalah dalam 7 hari kebelakangan #}
                         {% if grave.is_new %}
                         <span class="badge position-absolute top-0 end-0 m-3" style="background-color: #00ffcc; color: #121212; font-weight: 600; padding: 5px 12px; border-radius: 20px; box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);">
-                            <i class="fas fa-star me-1"></i> BAHARU
+                            <i class="fas fa-star me-1"></i> BARU
                         </span>
                         {% endif %}
 
@@ -82,27 +81,62 @@
 </div>
 
 <style>
-    /* Hover effect pada kad */
+    /* Container untuk search bar */
+    .search-container {
+        position: relative;
+        filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+    }
+
+    /* Ikon di dalam search bar */
+    .search-icon {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #00ffcc; /* Warna tema neon */
+        z-index: 10;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    /* Styling utama input */
+    .search-input {
+        background-color: #1a1a1a !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(0, 255, 204, 0.2) !important;
+        border-radius: 50px !important; /* Membuat bentuk oval yang kemas */
+        padding: 8px 25px 8px 55px !important; /* Padding kiri lebih besar untuk ikon */
+        font-size: 1.1rem;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+    }
+
+    /* Kesan apabila input diklik (Focus) */
+    .search-input:focus {
+        border-color: #00ffcc !important;
+        box-shadow: 0 0 20px rgba(0, 255, 204, 0.3) !important;
+        outline: none !important;
+        background-color: #222222 !important;
+        transform: scale(1.02); /* Sedikit zoom untuk kesan interaktif */
+    }
+
+    /* Apabila focus, ikon juga bersinar */
+    .search-input:focus + .search-icon {
+        color: #ffffff;
+        text-shadow: 0 0 8px #00ffcc;
+    }
+
+    /* Styling Placeholder */
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.4) !important;
+        font-weight: 300;
+        letter-spacing: 0.5px;
+    }
+
+    /* Hover effect pada kad (Kekalkan yang asal anda) */
     .card:hover {
         transform: translateY(-8px);
         box-shadow: 0 10px 30px rgba(0, 255, 204, 0.15) !important;
         background-color: #252525 !important;
-    }
-    
-    /* Input Search Styling */
-    #graveSearch:focus {
-        border-color: #00ffcc;
-        box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
-    }
-
-    .badge {
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
     }
 </style>
 
